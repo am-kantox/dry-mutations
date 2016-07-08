@@ -56,7 +56,7 @@ module Dry
 
         keys.flatten! # allow array to be passed as the only parameter
         map = [DRY_TO_MUTATIONS, MUTATIONS_TO_DRY].detect do |h|
-          (h.keys & (keys.empty? ? params.keys : keys)).any?
+          (h.values & (keys.empty? ? params.keys : keys)).any?
         end
 
         keys = map.keys if map && keys.empty?

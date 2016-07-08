@@ -2,17 +2,15 @@ module Dry
   module Mutations
     module DSL
       module Types # :nodoc:
-        class Nested
-          singleton_class.prepend Schema
-
+        class Nested < ::Mutations::Command # :nodoc:
           def self.init current
             @current = current
             instance_eval(&Proc.new) if block_given?
             schema
           end
 
-          def self.! current
-            new.init current
+          def self.! current, &cb
+            Class.new(Nested).init current, &cb
           end
 
           # Canadian if
@@ -41,9 +39,10 @@ module Dry
 
           nested =  begin
                       Nested.!(current, &cb)
-                    rescue AnonymousTypeDetected => err
-                      build_type err.type
+                    rescue Errors::AnonymousTypeDetected => err
+                      Utils.Type err.type
                     end
+          # binding.pry
           name.nil? ? schema { each(nested) } : schema { __send__(current, name).each(nested) }
 
           define_method(name) { @inputs[name] } unless Nested.eh?(self)
@@ -75,7 +74,7 @@ module Dry
         ########################################################################
 
         def generic_type name = nil, **params
-          fail AnonymousTypeDetected.new(__callee__) if name.nil?
+          fail Errors::AnonymousTypeDetected.new(__callee__) if name.nil?
 
           # FIXME: :strip => true and siblings should be handled with procs?
           current = @current # closure scope

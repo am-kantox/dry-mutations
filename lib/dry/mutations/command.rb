@@ -30,7 +30,7 @@ module Dry
       end
 
       def messages
-        @messages ||= @errors.values.map(&:dry_message)
+        @messages ||= @errors && @errors.values.map(&:dry_message)
       end
 
       private
@@ -42,6 +42,9 @@ module Dry
   end
 end
 
+# FIXME: Maybe this should be done from top file;
+#        BTW, Nested might be not derived from Command,
+#             but just have all this shit prepended...
 %w(Schema Blocks Types Weirdo).each do |mod|
   ::Mutations::Command.singleton_class.prepend ::Dry::Mutations::DSL.const_get(mod)
 end
