@@ -4,3 +4,5 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'dry-validation', github: 'dry-rb/dry-validation'
+
+gem 'codeclimate-test-reporter', group: :test, require: nil
