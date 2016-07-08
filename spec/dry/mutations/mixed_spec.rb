@@ -45,7 +45,7 @@ describe Dry::Mutations::Command do
       expect(output.run).not_to be_success
 
       expect(errors.keys).to match_array(%w(name amount))
-      expect(errors.values.map(&:predicate)).to match_array(%i(gt? max_size?))
+      expect(errors.values.map(&:dry_message).map(&:predicate)).to match_array(%i(gt? max_size?))
     end
   end
 end
