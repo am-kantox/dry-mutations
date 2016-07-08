@@ -6,7 +6,7 @@ module Dry
           define_method(mm) do |*args, &cb|
             @dry_message.send mm, *args, &cb
           end
-        end
+        end if ::Dry::Validation::Message.respond_to?(:members) # fallback for current non-git version of dry-rb
 
         attr_reader :dry_message
 
