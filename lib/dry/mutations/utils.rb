@@ -2,7 +2,7 @@ module Dry
   module Mutations
     module Utils # :nodoc:
       FALSEY =  /\A#{Regexp.union(%w(0 false falsey no n)).source}\z/i
-      TRUTHY =  /\A#{Regexp.union(%w(0 true truthy yes y)).source}\z/i
+      TRUTHY =  /\A#{Regexp.union(%w(1 true truthy yes y)).source}\z/i
 
       def self.Falsey? input, explicit: true
         explicit ? input.to_s =~ FALSEY : input.to_s !~ TRUTHY
@@ -14,7 +14,7 @@ module Dry
 
       # Lazy detector for Hashie::Mash
       #   TODO: Make it possible to choose friendly hash implementation
-      USE_HASHIE_MASH = (ENV['PLAIN_HASHES'].to_s !~ /\A(1|yes|true)\z/i) && begin
+      USE_HASHIE_MASH = Falsey?(ENV['PLAIN_HASHES'], explicit: false) && begin
         require 'hashie/mash'
         true
       rescue LoadError => e
