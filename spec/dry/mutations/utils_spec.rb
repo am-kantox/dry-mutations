@@ -2,13 +2,12 @@ require 'spec_helper'
 
 describe Dry::Mutations::Utils do
   context 'helper methods' do
-    let(:input) do
+    let!(:input) do
       {
         name: 'John',
-        amount: 42,
         min_size?: 10,
-        min_length: 11,
         max_size?: 20,
+        min_length: 11,
         max_length: 21
       }
     end
@@ -18,9 +17,10 @@ describe Dry::Mutations::Utils do
     end
 
     it 'maps parameters correctly' do
-      expect(Dry::Mutations::Utils.Guards(**input)).to eq(min_size?: 11, max_size?: 21)
-      expect(Dry::Mutations::Utils.Guards(:min_length, :max_length, **input)).to eq(min_length: 10, max_length: 20)
-      expect(Dry::Mutations::Utils.Guards([:min_length, :max_length], **input)).to eq(min_length: 10, max_length: 20)
+      expect(Dry::Mutations::Utils.Guards(**input)).to eq(min_length: 10, max_length: 20)
+      expect(Dry::Mutations::Utils.Guards(:min_size?, :max_size?, **input)).to eq(min_length: 10, max_length: 20)
+      expect(Dry::Mutations::Utils.Guards(:min_length, :max_length, **input)).to eq(min_size?: 11, max_size?: 21)
+      expect(Dry::Mutations::Utils.Guards([:min_length, :max_length], **input)).to eq(min_size?: 11, max_size?: 21)
     end
   end
 end

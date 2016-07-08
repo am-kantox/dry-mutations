@@ -1,6 +1,10 @@
 module Dry
   module Mutations
     module Command # :nodoc:
+      def self.prepended base
+        base.extend ::Dry::Mutations::DSL::Module
+      end
+
       attr_reader :validation
 
       def initialize(*args)

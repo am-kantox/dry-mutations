@@ -54,15 +54,16 @@ module Dry
       def self.Guards *keys, **params
         return {} if params.empty? || params[:empty] # Mutations `empty?` guard takes precedence on all others
 
+        keys = params.keys if keys.empty?
         keys.flatten! # allow array to be passed as the only parameter
+
         map = [DRY_TO_MUTATIONS, MUTATIONS_TO_DRY].detect do |h|
-          (h.values & (keys.empty? ? params.keys : keys)).any?
+          (h.keys & keys).any?
         end
 
-        keys = map.keys if map && keys.empty?
-        keys.zip(map.values_at(*keys).map(&params.method(:[])))
-            .to_h
-            .reject { |_, v| v.nil? }
+        map.values_at(*keys).zip(keys.map(&params.method(:[])))
+           .to_h
+           .tap { |h| h.delete(nil) }
       end
 
       def self.Type type, **params

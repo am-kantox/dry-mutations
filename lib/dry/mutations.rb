@@ -23,9 +23,8 @@ module Dry
         target.singleton_class.prepend ::Dry::Mutations::DSL.const_get(mod)
       end
     end
+
+    DSL::Types::Nested.extend DSL::Module
+    ::Mutations::Command.prepend Command if Utils.Truthy?(ENV['GLOBAL_DRY_MUTATIONS'])
   end
 end
-
-::Dry::Mutations.inject ::Mutations::Command
-::Dry::Mutations.inject ::Dry::Mutations::DSL::Types::Nested
-::Mutations::Command.prepend ::Dry::Mutations::Command

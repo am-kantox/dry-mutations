@@ -75,7 +75,7 @@ describe Dry::Mutations::Command do
   let(:expected) { ::Dry::Mutations::Utils.Hash(input) }
 
   before do
-    puts '—' * 60
+    # puts '—' * 60
     # puts output.messages.inspect
     # puts '—' * 60
   end
