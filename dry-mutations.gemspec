@@ -35,4 +35,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activesupport', '~> 3.2' # prevent mutations to require activesupport 5
   spec.add_dependency 'mutations', '~> 0.8'
   spec.add_dependency 'dry-validation', '~> 0.8'
+  spec.add_dependency 'hashie', '~> 3'
 end
