@@ -97,7 +97,10 @@ end
 
     ENV['GLOBAL_DRY_MUTATIONS'] = 'true' && rake
 
-### Turn On Globally (use with caution!)
+That way _all_ mutations all over the system will be patched/injected with
+new functionality. This is untested in all possible environments.
+
+Bug reports are very welcome!
 
 ## Development
 
