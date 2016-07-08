@@ -85,7 +85,10 @@ module Dry
           current = @current # closure scope
 
           opts = Utils.Guards(params)
-          type = [optionality(params), Utils.Type(__callee__)]
+
+          opt = optionality(params) # Ruby 2.3 delays function call
+          type = [opt, Utils.Type(__callee__)]
+
           schema do
             Utils.smart_send(__send__(current, name), *type, **opts)
           end
