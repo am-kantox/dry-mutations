@@ -86,8 +86,7 @@ module Dry
 
           opts = Utils.Guards(params)
 
-          opt = optionality(params) # Ruby 2.3 delays function call
-          type = [opt, Utils.Type(__callee__)]
+          type = [optionality(params), Utils.Type(__callee__)]
 
           schema do
             Utils.smart_send(__send__(current, name), *type, **opts)

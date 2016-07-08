@@ -2,11 +2,11 @@ module Dry
   module Mutations
     module Errors
       class ErrorAtom < ::Mutations::ErrorAtom # :nodoc:
-        ::Dry::Validation::Message.members.each do |mm|
+        %i(predicate path text rule args options).each do |mm|
           define_method(mm) do |*args, &cb|
             @dry_message.send mm, *args, &cb
           end
-        end if ::Dry::Validation::Message.respond_to?(:members) # fallback for current non-git version of dry-rb
+        end
 
         attr_reader :dry_message
 
