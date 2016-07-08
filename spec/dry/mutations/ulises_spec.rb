@@ -116,6 +116,12 @@ describe Dry::Mutations::Command do
       expect(output.run.result).to eq(expected)
     end
 
+    it 'prints out the inputs' do
+      puts '—' * 60
+      puts output.run.result
+      puts '—' * 60
+    end
+
     it 'rejects wrong inputs' do
       expect(bad_output).to be_is_a(::Mutations::Command)
       expect(bad_output.run).not_to be_success

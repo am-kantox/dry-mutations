@@ -3,12 +3,12 @@ module Dry
     module DSL
       module Weirdo # :nodoc:
         # FIXME: try-catch and call super in rescue clause
-        def method_missing m, *args, &cb
+        def method_missing m, *args, &_cb
           puts "==> [MM] “#{m}” called with args: “#{args.inspect}”"
           name, current = args.shift, @current
           schema do
             configure do
-              define_method(:"#{name}?") do |value|
+              define_method(:"#{name}?") do |_value|
                 false # FIXME
               end
             end

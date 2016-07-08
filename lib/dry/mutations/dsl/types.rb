@@ -25,7 +25,7 @@ module Dry
         ########################################################################
 
         # FIXME: errors in double+ nested hashes are not nested! dry-rb glitch?
-        def hash name, **params, &cb
+        def hash name, **_params, &cb
           current = @current # closure scope
 
           schema { __send__(current, name).schema(Nested.!(current, &cb)) }
@@ -34,7 +34,7 @@ module Dry
         end
 
         # FIXME: array of anonymous objects
-        def array name, **params, &cb
+        def array name, **_params, &cb
           current = @current # closure scope
 
           nested =  begin

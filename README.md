@@ -1,8 +1,14 @@
 # Dry::Mutations
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/dry/mutations`. To experiment with that code, run `bin/console` for an interactive prompt.
+[![Build Status](https://travis-ci.org/am-kantox/dry-mutations.svg?branch=master)](https://travis-ci.org/am-kantox/dry-mutations)
+[![Code Climate](https://codeclimate.com/github/am-kantox/dry-mutations/badges/gpa.svg)](https://codeclimate.com/github/am-kantox/dry-mutations)
 
-TODO: Delete this and the text above, and describe your gem
+---
+
+A link between [`dry-validation`](http://dry-rb.org/gems/dry-validation) and
+[`mutations`](http://github.com/cypriss/mutations) gems. This gem enables
+support for `dry-validation` schemas to be used within legacy `mutations`-based
+syntax.
 
 ## Installation
 
@@ -22,7 +28,76 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Enable extensions for the specific mutation’s command
+
+Prepend a `::Dry::Mutations::Command` module to your `Mutation::Command` instance:
+
+```ruby
+class MyMutation < Mutations::Command
+  prepend ::Dry::Mutations::Command
+
+  required do
+    model :company, class: 'Profile'
+    model :user
+    hash  :maturity_set do
+      string :maturity_choice, in: %w(spot forward_days fixed_date)
+      optional do
+        hash :maturity_days_set do
+          integer :days # For spot or forward_days options
+        end
+        hash :maturity_date_set do
+          date :date # When passing a fixed date
+        end
+      end
+    end
+    ...
+```
+
+### `dry-validation` syntax
+
+It is possible to mix standard mutations’ syntax with `dry-rb` schemas:
+
+```ruby
+class MyMutation < Mutations::Command
+  prepend ::Dry::Mutations::Command
+
+  required do
+    model :company, class: 'Profile'
+  end
+
+  schema do
+    required(:maturity_choice).filled(:str?, included_in?: %w(spot forward_days fixed_date))
+  end
+```
+
+### Reusing schema
+
+Basically, everything [written here](http://dry-rb.org/gems/dry-validation/reusing-schemas/)
+is applicable. Syntax to include the nested schema is as simple as:
+
+```ruby
+UserSchema = Dry::Validation.Schema do
+  required(:email).filled(:str?)
+  required(:name).filled(:str?)
+  required(:address).schema(AddressSchema)
+end
+```
+
+or, in legacy `mutations` syntax (**NB! This is not yet implemented!**):
+
+```ruby
+required do
+  string :email
+  string :name
+  schema :address, AddressSchema
+end
+```
+
+### Turn On Globally (use with caution!)
+
+    ENV['GLOBAL_DRY_MUTATIONS'] = 'true' && rake
+
+### Turn On Globally (use with caution!)
 
 ## Development
 
@@ -38,4 +113,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-

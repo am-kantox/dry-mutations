@@ -2,7 +2,7 @@ module Dry
   module Mutations
     module Errors
       class ErrorAtom < ::Mutations::ErrorAtom # :nodoc:
-        ::Dry::Validation::Message.instance_methods(false).each do |mm|
+        ::Dry::Validation::Message.members.each do |mm|
           define_method(mm) do |*args, &cb|
             @dry_message.send mm, *args, &cb
           end
