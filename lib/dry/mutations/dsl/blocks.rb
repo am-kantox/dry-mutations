@@ -17,10 +17,9 @@ module Dry
         #   empty.string :bank_reference, nils: true
         #   empty.array  :invoice_files,  nils: true
         # end
-        # FIXME: UNFINISHED
         def with_options **params
           @environs = params
-          instance_eval(&Proc.new) if block_given?
+          yield self if block_given?
           @environs = nil
         end
       end

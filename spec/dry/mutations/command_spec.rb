@@ -5,6 +5,9 @@ describe Dry::Mutations::Command do
     {
       name: 'John',
       amount: 42,
+
+      e1: '', e2: '1', e3: 'Just regular string',
+
       age: 35,
       emails: [
         { email: 'john@kantox.com', type: 'work' },
@@ -33,6 +36,13 @@ describe Dry::Mutations::Command do
       required do
         string :name, max_length: 5
         integer :amount
+
+        with_options empty: true do |empty|
+          empty.string :e1
+          empty.string :e2
+          empty.string :e3
+        end
+
         array :emails do
           string :email
           string :type
@@ -46,6 +56,8 @@ describe Dry::Mutations::Command do
         array :arr_lvl_0_val do
           integer
         end
+        # FIXME: deeply nested hashes fail to return proper error path:
+        #        try to swap `:hsh_lvl_1_val` and `:hsh_lvl_1` and run tests
         hash :hsh_lvl_0 do
           string :hsh_lvl_1_val, min_length: 2
           hash :hsh_lvl_1 do

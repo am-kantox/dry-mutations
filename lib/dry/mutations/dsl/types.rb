@@ -25,10 +25,10 @@ module Dry
         ########################################################################
 
         # FIXME: errors in double+ nested hashes are not nested! dry-rb glitch?
-        def hash name
+        def hash name, &cb
           current = @current # closure scope
 
-          schema { __send__(current, name).schema(Nested.!(current, &Proc.new)) }
+          schema { __send__(current, name).schema(Nested.!(current, &cb)) }
 
           define_method(name) { Utils::Hash(@inputs[name]) } unless Nested.eh?(self)
         end
@@ -42,7 +42,7 @@ module Dry
                     rescue Errors::AnonymousTypeDetected => err
                       Utils.Type err.type
                     end
-          # binding.pry
+
           name.nil? ? schema { each(nested) } : schema { __send__(current, name).each(nested) }
 
           define_method(name) { @inputs[name] } unless Nested.eh?(self)
@@ -52,20 +52,20 @@ module Dry
         ### custom types
         ########################################################################
 
-        def duck name, nils: false, methods: []
+        def duck name, **params
           current = @current # closure scope
 
           schema do
-            __send__(current, name).__send__(optionality(nils), duck?: [*methods])
+            __send__(current, name).__send__(optionality(params), duck?: [*params[:methods]])
           end
         end
 
         # possible params: `class: nil, builder: nil, new_records: false`
-        def model name, nils: false, **params
+        def model name, **params
           current = @current # closure scope
 
           schema do
-            __send__(current, name).__send__(optionality(nils), model?: params[:class])
+            __send__(current, name).__send__(optionality(params), model?: params[:class])
           end
         end
 
@@ -75,6 +75,8 @@ module Dry
 
         def generic_type name = nil, **params
           fail Errors::AnonymousTypeDetected.new(__callee__) if name.nil?
+
+          params = @environs.merge params if @environs
 
           # FIXME: :strip => true and siblings should be handled with procs?
           current = @current # closure scope
@@ -102,7 +104,7 @@ module Dry
 
         def optionality nils
           # rubocop:disable Style/NestedTernaryOperator
-          (nils.is_a?(Hash) ? nils[:nils] : nils) ? :maybe : :filled
+          (nils.is_a?(Hash) ? nils[:nils] || nils[:empty] : nils) ? :maybe : :filled
           # rubocop:enable Style/NestedTernaryOperator
         end
       end
