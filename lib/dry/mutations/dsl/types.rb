@@ -65,6 +65,7 @@ module Dry
         def model name, **params
           current = @current # closure scope
           filled_or_maybe = optionality(params)
+          params[:class] ||= name.to_s.gsub(/(?:\A|_)./) { |m| m[-1].upcase }
 
           schema do
             __send__(current, name).__send__(filled_or_maybe, model?: params[:class])

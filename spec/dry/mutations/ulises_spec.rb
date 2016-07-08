@@ -12,7 +12,7 @@ describe Dry::Mutations::Command do
       prepend ::Dry::Mutations::Command
       required do
         model :company, class: 'Profile'
-        model :user, class: 'User'
+        model :user
         hash  :maturity_set do
           string :maturity_choice, in: %w(spot forward_days fixed_date)
           optional do
