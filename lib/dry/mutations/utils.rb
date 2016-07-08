@@ -69,7 +69,13 @@ module Dry
       def self.Type type, **params
         case type.to_s
         when 'string'
-          Falsey?(params[:strip]) ? :str? : ::Dry::Types['strict.string'].constructor(&:strip)
+          if Falsey?(params[:strip])
+            :str?
+          else
+            ::Dry::Types::Constructor.new(
+              ::Dry::Types['strict.string'], fn: ->(v) { v.to_s.strip }
+            )
+          end
         when 'integer' then :int?
         when 'boolean' then :bool?
         else :"#{type}?"

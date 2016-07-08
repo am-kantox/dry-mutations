@@ -14,6 +14,7 @@ module Dry
         end
 
         @validation_result = schema.(@raw_inputs)
+
         @inputs = Utils.Hash @validation_result.output
 
         # dry: {:name=>["size cannot be greater than 10"],
