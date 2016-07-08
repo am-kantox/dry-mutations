@@ -41,12 +41,3 @@ module Dry
     end
   end
 end
-
-# FIXME: Maybe this should be done from top file;
-#        BTW, Nested might be not derived from Command,
-#             but just have all this shit prepended...
-%w(Schema Blocks Types Weirdo).each do |mod|
-  ::Mutations::Command.singleton_class.prepend ::Dry::Mutations::DSL.const_get(mod)
-end
-
-::Mutations::Command.prepend ::Dry::Mutations::Command

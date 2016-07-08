@@ -6,11 +6,16 @@ describe Dry::Mutations::Command do
       name: 'John',
       amount: 42,
       age: 35,
+      emails: [
+        { email: 'john@kantox.com', type: 'work' },
+        { email: 'john@gmail.com', type: 'personal' }
+      ],
 
       # NB: NOT YET IMPLEMENTED BECAUSE I DOUBT HOW :()
       arr_lvl_0: [
-        {},
-        {}
+        { arr_lvl_2_val: 'a' },
+        { arr_lvl_2_val: 'b' },
+        { arr_lvl_2_val: 'c' }
       ],
       arr_lvl_0_val: [1, 2, 3],
 
@@ -28,6 +33,10 @@ describe Dry::Mutations::Command do
       required do
         string :name, max_length: 5
         integer :amount
+        array :emails do
+          string :email
+          string :type
+        end
       end
       optional do
         integer :age, min: 10, max: 100

@@ -2,7 +2,7 @@ module Dry
   module Mutations
     module DSL
       module Types # :nodoc:
-        class Nested < ::Mutations::Command # :nodoc:
+        class Nested # :nodoc:
           def self.init current
             @current = current
             instance_eval(&Proc.new) if block_given?

@@ -18,5 +18,14 @@ module Dry
   #   native [`dry-validation`](http://github.com/dry-rb/dry-validation)
   #   schemas moight be used to describe validation rules.
   module Mutations
+    def self.inject target
+      %i(Schema Blocks Types Weirdo).each do |mod|
+        target.singleton_class.prepend ::Dry::Mutations::DSL.const_get(mod)
+      end
+    end
   end
 end
+
+::Dry::Mutations.inject ::Mutations::Command
+::Dry::Mutations.inject ::Dry::Mutations::DSL::Types::Nested
+::Mutations::Command.prepend ::Dry::Mutations::Command
