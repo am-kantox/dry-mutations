@@ -33,6 +33,8 @@ describe Dry::Mutations::Command do
 
   let!(:simple_command) do
     Class.new(::Mutations::Command) do
+      prepend ::Dry::Mutations::Command
+
       required do
         string :name, max_length: 5
         integer :amount

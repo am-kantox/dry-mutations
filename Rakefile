@@ -17,7 +17,7 @@ end
 
 desc 'Tests'
 RSpec::Core::RakeTask.new(:spec) do |spec|
-  ENV['GLOBAL_DRY_MUTATIONS'] = 'true'
+  # ENV['GLOBAL_DRY_MUTATIONS'] = 'true'
   spec.rspec_opts = '-Ispec'
   #  spec.rcov = true
 end

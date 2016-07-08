@@ -2,7 +2,7 @@ module Dry
   module Mutations
     module Command # :nodoc:
       def self.prepended base
-        base.extend ::Dry::Mutations::DSL::Module
+        base.extend(DSL::Module) unless base.ancestors.include?(DSL::Module)
       end
 
       attr_reader :validation

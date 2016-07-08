@@ -13,8 +13,9 @@ module Dry
 
         def derived_schema
           this = is_a?(Class) ? self : self.class
+
           parent_with_schema = this.ancestors.tap(&:shift).detect do |klazz|
-            break if klazz == Mutations::Command
+            next if [this, ::Mutations::Command, ::Dry::Mutations::Command].include?(klazz)
             klazz.respond_to?(:schema) && klazz.schema.is_a?(Validation::Schema)
           end
           parent_with_schema ? Class.new(parent_with_schema.schema.class).new : empty_schema
