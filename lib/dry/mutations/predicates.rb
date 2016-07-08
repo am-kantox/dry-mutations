@@ -9,7 +9,15 @@ module Dry
 
       # FIXME: at the moment this is an exact equivalent of :type? => User
       predicate(:model?) do |expected, current|
-        expected.nil? || current.is_a?(expected)
+        return true if expected.nil?
+        expected = begin
+                     ::Kernel.const_get(expected)
+                   rescue TypeError => e
+                     raise Errors::TypeError, "Bad “model” type. Error: [#{e.message}]"
+                   rescue NameError => e
+                     raise Errors::TypeError, "Bad “model” class. Error: [#{e.message}]"
+                   end unless expected.is_a? Module
+        current.is_a?(expected)
       end
     end
   end

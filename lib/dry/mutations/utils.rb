@@ -71,6 +71,7 @@ module Dry
         when 'string'
           Falsey?(params[:strip]) ? :str? : ::Dry::Types['strict.string'].constructor(&:strip)
         when 'integer' then :int?
+        when 'boolean' then :bool?
         else :"#{type}?"
         end
       end

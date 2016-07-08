@@ -25,7 +25,7 @@ module Dry
         ########################################################################
 
         # FIXME: errors in double+ nested hashes are not nested! dry-rb glitch?
-        def hash name, &cb
+        def hash name, **params, &cb
           current = @current # closure scope
 
           schema { __send__(current, name).schema(Nested.!(current, &cb)) }
@@ -34,7 +34,7 @@ module Dry
         end
 
         # FIXME: array of anonymous objects
-        def array name, &cb
+        def array name, **params, &cb
           current = @current # closure scope
 
           nested =  begin
@@ -54,18 +54,20 @@ module Dry
 
         def duck name, **params
           current = @current # closure scope
+          filled_or_maybe = optionality(params)
 
           schema do
-            __send__(current, name).__send__(optionality(params), duck?: [*params[:methods]])
+            __send__(current, name).__send__(filled_or_maybe, duck?: [*params[:methods]])
           end
         end
 
         # possible params: `class: nil, builder: nil, new_records: false`
         def model name, **params
           current = @current # closure scope
+          filled_or_maybe = optionality(params)
 
           schema do
-            __send__(current, name).__send__(optionality(params), model?: params[:class])
+            __send__(current, name).__send__(filled_or_maybe, model?: params[:class])
           end
         end
 
@@ -94,7 +96,7 @@ module Dry
           end
         end
 
-        %i(string integer float date time).each do |m|
+        %i(string integer float date time boolean).each do |m|
           alias_method m, :generic_type
         end
 
