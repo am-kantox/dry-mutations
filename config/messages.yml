@@ -1,0 +1,4 @@
+en:
+  errors:
+    duck?: 'must respond to %{expected}'
+    model?: 'must be a model (instance of %{expected})'
