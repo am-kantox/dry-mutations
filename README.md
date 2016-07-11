@@ -30,11 +30,11 @@ Or install it yourself as:
 
 ### Enable extensions for the specific mutation’s command
 
-Prepend a `::Dry::Mutations::Command` module to your `Mutation::Command` instance:
+Prepend a `::Dry::Mutations::Extensions::Command` module to your `Mutation::Command` instance:
 
 ```ruby
 class MyMutation < Mutations::Command
-  prepend ::Dry::Mutations::Command
+  prepend ::Dry::Mutations::Extensions::Command
 
   required do
     model :company, class: 'Profile'
@@ -59,7 +59,7 @@ It is possible to mix standard mutations’ syntax with `dry-rb` schemas:
 
 ```ruby
 class MyMutation < Mutations::Command
-  prepend ::Dry::Mutations::Command
+  prepend ::Dry::Mutations::Extensions::Command
 
   required do
     model :company, class: 'Profile'

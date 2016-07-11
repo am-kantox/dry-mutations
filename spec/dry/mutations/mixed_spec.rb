@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Dry::Mutations::Command do
+describe Dry::Mutations::Extensions::Command do
   let(:mixed_input) do
     {
       name: 'John',
@@ -10,7 +10,7 @@ describe Dry::Mutations::Command do
 
   let!(:mixed_command) do
     Class.new(::Mutations::Command) do
-      prepend ::Dry::Mutations::Command
+      prepend ::Dry::Mutations::Extensions::Command
 
       required do
         string :name, max_length: 5

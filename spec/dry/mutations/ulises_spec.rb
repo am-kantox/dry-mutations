@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Dry::Mutations::Command do
+describe Dry::Mutations::Extensions::Command do
   class Profile
   end
 
@@ -9,7 +9,7 @@ describe Dry::Mutations::Command do
 
   let(:mutation) do
     Class.new(::Mutations::Command) do
-      prepend ::Dry::Mutations::Command
+      prepend ::Dry::Mutations::Extensions::Command
       required do
         model :company, class: 'Profile'
         model :user

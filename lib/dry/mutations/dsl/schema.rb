@@ -15,7 +15,7 @@ module Dry
           this = is_a?(Class) ? self : self.class
 
           parent_with_schema = this.ancestors.drop(1).detect do |klazz|
-            next if [this, ::Mutations::Command, ::Dry::Mutations::Command].include?(klazz)
+            next if [this, ::Mutations::Command, ::Dry::Mutations::Extensions::Command].include?(klazz)
             klazz.respond_to?(:schema) && klazz.schema.is_a?(Validation::Schema)
           end
           parent_with_schema ? Class.new(parent_with_schema.schema.class).new : empty_schema

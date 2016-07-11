@@ -7,7 +7,7 @@ require 'dry/mutations/monkeypatches'
 require 'dry/mutations/predicates'
 require 'dry/mutations/errors'
 require 'dry/mutations/dsl'
-require 'dry/mutations/command'
+require 'dry/mutations/extensions'
 
 module Dry
   # A dry implementation of mutations interface introduced by
@@ -25,6 +25,6 @@ module Dry
     end
 
     DSL::Types::Nested.extend DSL::Module
-    ::Mutations::Command.prepend Command if Utils.Truthy?(ENV['GLOBAL_DRY_MUTATIONS'])
+    ::Mutations::Command.prepend Extensions::Command if Utils.Truthy?(ENV['GLOBAL_DRY_MUTATIONS'])
   end
 end
