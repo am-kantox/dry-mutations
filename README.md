@@ -93,7 +93,74 @@ required do
 end
 ```
 
-### Turn On Globally (use with caution!)
+## Dealing `outcome`
+
+### Command
+
+```ruby
+let!(:command) do
+  Class.new(::Mutations::Command) do
+    prepend ::Dry::Mutations::Extensions::Command
+
+    required { string :name, max_length: 5 }
+    schema { required(:amount).filled(:int?, gt?: 0) }
+
+    def execute
+      @inputs
+    end
+  end
+end
+```
+
+### Using `Either` monad
+
+```ruby
+outcome = command.new(name: 'John', amount: 42).run
+outcome.right?
+#⇒ true
+outcome.either.value
+#⇒ { 'name' => 'John', 'amount' => 42 }
+
+outcome = command.new(name: 'John Donne', amount: -500).run
+outcome.right?
+#⇒ false
+outcome.left?
+#⇒ true
+outcome.either
+#⇒ Left({
+#   "name"=>#<Dry::Mutations::Errors::ErrorAtom:0x00000003b4e7b0
+#               @key="name",
+#               @symbol=:max_length,
+#               @message="size cannot be greater than 5",
+#               @index=0,
+#               @dry_message=#<Dry::Validation::Message
+#                               predicate=:max_size?
+#                               path=[:name]
+#                               text="size cannot be greater than 5"
+#                               options={:args=>[5], :rule=>:name, :each=>false}>>,
+#   "amount"=>#<Dry::Mutations::Errors::ErrorAtom:0x00000003b4e508
+#               @key="amount",
+#               @symbol=:gt?,
+#               @message="must be greater than 0",
+#               @index=1,
+#               @dry_message=#<Dry::Validation::Message
+#                               predicate=:gt?
+#                               path=[:amount]
+#                               text="must be greater than 0"
+#                               options={:args=>[0], :rule=>:amount, :each=>false}>>
+# })
+outcome.either.value
+#⇒ the hash ⇑ above
+```
+
+### Using `Matcher`
+
+```ruby
+expect(outcome.match { |m| m.success(&:keys) }).to match_array(%w(amount name))
+expect(outcome.match { |m| m.failure(&:keys) }).to be_nil
+```
+
+## Turn On Globally (use with caution!)
 
     ENV['GLOBAL_DRY_MUTATIONS'] = 'true' && rake
 

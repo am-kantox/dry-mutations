@@ -14,44 +14,46 @@ module Dry
 
           def calculate
             Right(outcome).bind do |value|
-              if value.success?
-                Right(value.result)
-              else
-                Left(value.errors)
-              end
+              value.success? ? Right(value.result) : Left(value.errors)
             end
           end
         end
 
-        # class Matcher # :nodoc:
-        #   # Match `[:ok, some_value]` for success
-        #   SUCCESS = Dry::Matcher::Case.new(
-        #     match: -> value { value.first == :ok },
-        #     resolve: -> value { value.last }
-        #   )
-        #
-        #   # Match `[:err, some_error_code, some_value]` for failure
-        #   failure_case = Dry::Matcher::Case.new(
-        #     match: -> value, *pattern {
-        #       value[0] == :err && (pattern.any? ? pattern.include?(value[1]) : true)
-        #     },
-        #     resolve: -> value { value.last }
-        #   )
-        #
-        #   # Build the matcher
-        #   matcher = Dry::Matcher.new(success: success_case, failure: failure_case)
-        # end
+        class Matcher # :nodoc:
+          SUCCESS = Dry::Matcher::Case.new(
+            match: -> (value) { value.right? },
+            resolve: -> (value) { value.either.value }
+          )
+
+          # rubocop:disable Style/Lambda
+          # rubocop:disable Style/BlockDelimiters
+          FAILURE = Dry::Matcher::Case.new(
+            match: -> (value, *patterns) {
+              value.left? && (patterns.none? || (patterns & value.either.value.keys).any?)
+            },
+            resolve: -> (value) { value.either.value }
+          )
+          # rubocop:enable Style/BlockDelimiters
+          # rubocop:enable Style/Lambda
+
+          # Build the matcher
+          def self.!
+            Dry::Matcher.new(success: SUCCESS, failure: FAILURE)
+          end
+
+          private_constant :SUCCESS
+          private_constant :FAILURE
+        end
 
         def self.prepended base
           fail ArgumentError, "Can not prepend #{self.class} to #{base.class}: base class must be a ::Mutations::Outcome descendant." unless base < ::Mutations::Outcome
-          # base.extend(DSL::Module) unless base.ancestors.include?(DSL::Module)
         end
 
         attr_reader :either
 
         def initialize(is_success, result, errors, inputs)
           super is_success, result, errors, inputs
-          etherify
+          etherify!
         end
 
         def eitherify!
@@ -66,6 +68,11 @@ module Dry
 
         def left?
           @either.is_a?(Left)
+        end
+
+        def match
+          fail 'Call to Outcome#match requires a block passed.' unless block_given?
+          Matcher.!.(self, &Proc.new)
         end
       end
     end
