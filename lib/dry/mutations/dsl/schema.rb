@@ -14,7 +14,7 @@ module Dry
         def derived_schema
           this = is_a?(Class) ? self : self.class
 
-          parent_with_schema = this.ancestors.tap(&:shift).detect do |klazz|
+          parent_with_schema = this.ancestors.drop(1).detect do |klazz|
             next if [this, ::Mutations::Command, ::Dry::Mutations::Command].include?(klazz)
             klazz.respond_to?(:schema) && klazz.schema.is_a?(Validation::Schema)
           end

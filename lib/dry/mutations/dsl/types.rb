@@ -12,11 +12,6 @@ module Dry
           def self.! current, &cb
             Class.new(Nested).init current, &cb
           end
-
-          # Canadian if
-          def self.eh? instance
-            instance.is_a? Nested
-          end
         end
         # private_constant :Nested
 
@@ -30,7 +25,7 @@ module Dry
 
           schema { __send__(current, name).schema(Nested.!(current, &cb)) }
 
-          define_method(name) { Utils::Hash(@inputs[name]) } unless Nested.eh?(self)
+          define_method(name) { Utils::Hash(@inputs[name]) } unless Nested === self
         end
 
         # FIXME: array of anonymous objects
@@ -45,7 +40,7 @@ module Dry
 
           name.nil? ? schema { each(nested) } : schema { __send__(current, name).each(nested) }
 
-          define_method(name) { @inputs[name] } unless Nested.eh?(self)
+          define_method(name) { @inputs[name] } unless Nested === self
         end
 
         ########################################################################
@@ -92,7 +87,7 @@ module Dry
             Utils.smart_send(__send__(current, name), *type, **opts)
           end
 
-          unless Nested.eh?(self)
+          unless Nested === self
             define_method(name) { @inputs[name] }
             define_method(:"#{name}_present?") { @inputs.key?(name) }
             define_method(:"#{name}=") { |value| @inputs[name] = value }

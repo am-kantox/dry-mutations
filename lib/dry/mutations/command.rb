@@ -2,6 +2,7 @@ module Dry
   module Mutations
     module Command # :nodoc:
       def self.prepended base
+        fail ArgumentError, "Can not prepend #{self.class} to #{base.class}: base class must be a ::Mutations::Command descendant." unless base < ::Mutations::Command
         base.extend(DSL::Module) unless base.ancestors.include?(DSL::Module)
       end
 

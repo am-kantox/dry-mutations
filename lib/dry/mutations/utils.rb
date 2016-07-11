@@ -72,6 +72,8 @@ module Dry
           if Falsey?(params[:strip])
             :str?
           else
+            # TODO: this silently coerces everything to be a string
+            #       when `param[:strip]` is specified. This is likely OK, though.
             ::Dry::Types::Constructor.new(
               ::Dry::Types['strict.string'], fn: ->(v) { v.to_s.strip }
             )
