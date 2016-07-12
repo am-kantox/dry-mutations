@@ -46,6 +46,32 @@ module Dry
           end
         end
 
+        def execute
+          super
+        rescue => e
+          add_error(:♻, :runtime_exception, e.message)
+        end
+
+        def add_error(key, kind, message = nil, dry_message = nil)
+          fail ArgumentError.new("Invalid kind #{kind}") unless kind.is_a?(Symbol)
+
+          path = key.to_s.split('.')
+          # ["#<struct Dry::Validation::Message
+          #            predicate=:int?,
+          #            path=[:maturity_set, :maturity_days_set, :days],
+          #            text=\"must be an integer\",
+          #            options={:args=>[], :rule=>:days, :each=>false}>"
+          dry_message ||= ::Dry::Validation::Message.new(kind, *path.map(&:to_sym), message, rule: :♻)
+          atom = Errors::ErrorAtom.new(key, kind, dry_message, message: message)
+
+          last = path.pop
+          (@errors ||= ::Mutations::ErrorHash.new).tap do |errs|
+            path.inject(errs) do |cur_errors, part|
+              cur_errors[part.to_sym] ||= ::Mutations::ErrorHash.new
+            end[last] = atom
+          end
+        end
+
         def messages
           @messages ||= @errors && @errors.values.map(&:dry_message)
         end

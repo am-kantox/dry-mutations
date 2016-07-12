@@ -73,6 +73,19 @@ describe Dry::Mutations::Extensions::Command do
     end
   end
 
+  let!(:raising_command) do
+    Class.new(::Mutations::Command) do
+      prepend ::Dry::Mutations::Extensions::Command
+
+      required do
+        integer :amount
+      end
+      def execute
+        amount / 0
+      end
+    end
+  end
+
   let(:output) { simple_command.new(input) }
   let(:expected) { ::Dry::Mutations::Utils.Hash(input) }
 
@@ -134,6 +147,17 @@ describe Dry::Mutations::Extensions::Command do
         "hsh_lvl_0.hsh_lvl_1.hsh_lvl_2_val" => :in,
                   "hsh_lvl_0.hsh_lvl_1_val" => :min_length
       )
+    end
+  end
+
+  context 'raising command' do
+    it 'handles exceptions' do
+      expect { raising_command.run(amount: 5) }.not_to raise_exception
+      expect { raising_command.run(amount: 0) }.not_to raise_exception
+
+      expect(raising_command.run(amount: 0)).not_to be_success
+      expect(raising_command.run(amount: 0).errors.symbolic).to eq('♻' => :runtime_exception)
+      expect(raising_command.run(amount: 0).errors.message).to eq('♻' => 'divided by 0')
     end
   end
 end
