@@ -5,6 +5,24 @@ module Dry
         def self.prepended base
           fail ArgumentError, "Can not prepend #{self.class} to #{base.class}: base class must be a ::Mutations::Command descendant." unless base < ::Mutations::Command
           base.extend(DSL::Module) unless base.ancestors.include?(DSL::Module)
+          base.extend(Module.new do
+            def call(*args)
+              new(*args).call
+            end
+
+            def to_proc
+              ->(*args) { new(*args).call }
+            end
+
+            if base.name && !::Kernel.methods.include?(base_name = base.name.split('::').last.to_sym)
+              ::Kernel.class_eval <<-FACTORY, __FILE__, __LINE__ + 1
+                def #{base_name}(*args)
+                  puts "Gonna call [#{base}.call(*args)] with \#{args.inspect}"
+                  #{base}.call(*args)
+                end
+              FACTORY
+            end
+          end)
         end
 
         attr_reader :validation
@@ -35,6 +53,18 @@ module Dry
           # Run a custom validation method if supplied:
           validate unless has_errors?
         end
+
+        ########################################################################
+        ### Functional helpers
+        ########################################################################
+
+        def call
+          run.either
+        end
+
+        ########################################################################
+        ### Overrides
+        ########################################################################
 
         def validation_outcome(result = nil)
           # Outcome.new(!has_errors?, has_errors? ? nil : result, @errors, @inputs)

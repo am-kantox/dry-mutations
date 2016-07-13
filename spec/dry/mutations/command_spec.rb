@@ -160,4 +160,64 @@ describe Dry::Mutations::Extensions::Command do
       expect(raising_command.run(amount: 0).errors.message).to eq('♻' => 'divided by 0')
     end
   end
+
+  context 'call interface: success' do
+    let(:input) { default_input }
+    it 'processes the input properly' do
+      expect(output.call).to be_right
+      expect(output.call.value).to eq(expected)
+    end
+  end
+
+  context 'call interface: failure' do
+    let(:input) { default_input.merge name: 'John Smith', amount: :not_int, age: 1 }
+    it 'processes the input properly' do
+      expect(output.call).to be_left
+      expect(output.call.value.values.count).to eq(3)
+    end
+  end
+
+  context 'call class interface: success' do
+    let(:input) { default_input }
+    it 'processes the input properly' do
+      expect(simple_command.call(input)).to be_right
+      expect(simple_command.call(input).value).to eq(expected)
+    end
+  end
+
+  context 'call class interface: failure' do
+    let(:input) { default_input.merge name: 'John Smith', amount: :not_int, age: 1 }
+    it 'processes the input properly' do
+      expect(simple_command.call(input)).to be_left
+      expect(simple_command.call(input).value.values.count).to eq(3)
+    end
+  end
+
+  context 'to_proc interface: success' do
+    let(:input) { [default_input] * 2 }
+    it 'processes the input properly' do
+      expect(input.map(&simple_command).size).to eq(2)
+      expect(input.map(&simple_command).map(&:value).first).to eq(::Dry::Mutations::Utils.Hash(default_input))
+    end
+  end
+
+  context 'factory interface: success' do
+    # rubocop:disable Style/ClassAndModuleChildren
+    class ::Dry::Mutations::MyMutationsCommand < ::Mutations::Command
+      prepend ::Dry::Mutations::Extensions::Command
+
+      required do
+        string :name, max_length: 5
+      end
+
+      def execute
+        @inputs
+      end
+    end
+    # rubocop:enable Style/ClassAndModuleChildren
+
+    it 'processes the input properly' do
+      expect(MyMutationsCommand(name: 'John').value).to eq(::Dry::Mutations::Utils.Hash(name: 'John'))
+    end
+  end
 end

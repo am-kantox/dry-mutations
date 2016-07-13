@@ -70,6 +70,10 @@ module Dry
           @either.is_a?(Left)
         end
 
+        def value
+          @either.value
+        end
+
         def match
           fail 'Call to Outcome#match requires a block passed.' unless block_given?
           Matcher.!.(self, &Proc.new)
