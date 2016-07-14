@@ -17,10 +17,12 @@ module Dry
           end
 
           def call(step, *args, input)
-            step.operation.(input) # .tap { |op| binding.pry }
+            binding.pry unless args.empty? # FIXME
+            step.operation.(input)
           end
         end
 
+        # preload predefined step adapters
         Dir[File.expand_path('step_adapters', __dir__) << '/*'].each do |f|
           require_relative f
         end
