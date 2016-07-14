@@ -38,4 +38,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'dry-validation'
   spec.add_dependency 'dry-matcher'
   spec.add_dependency 'dry-monads'
+  spec.add_dependency 'dry-transaction'
 end

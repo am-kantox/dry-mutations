@@ -8,6 +8,7 @@ require 'dry/mutations/predicates'
 require 'dry/mutations/errors'
 require 'dry/mutations/dsl'
 require 'dry/mutations/extensions'
+require 'dry/mutations/transactions'
 
 module Dry
   # A dry implementation of mutations interface introduced by

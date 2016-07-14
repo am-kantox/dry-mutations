@@ -27,6 +27,7 @@ Style/SignalException:
 Style/MethodName:
   Exclude:
     - 'lib/dry/mutations/utils.rb'
+    - 'lib/dry/transactions/*.rb'
 
 ################################################################################
 
@@ -35,9 +36,14 @@ Style/Alias:
     - 'lib/**/*'
     - 'spec/**/*'
 
+Style/Lambda:
+  Exclude:
+    - 'lib/**/*'
+
 Style/LambdaCall:
   Exclude:
     - 'lib/**/*'
+    - 'spec/**/*'
 
 Style/ParallelAssignment:
   Exclude:

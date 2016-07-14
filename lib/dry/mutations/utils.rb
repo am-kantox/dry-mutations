@@ -1,8 +1,8 @@
 module Dry
   module Mutations
     module Utils # :nodoc:
-      FALSEY =  /\A#{Regexp.union(%w(0 false falsey no n)).source}\z/i
-      TRUTHY =  /\A#{Regexp.union(%w(1 true truthy yes y)).source}\z/i
+      FALSEY =  /\A#{Regexp.union(%w(0 skip false falsey no n)).source}\z/i
+      TRUTHY =  /\A#{Regexp.union(%w(1 use true truthy yes y)).source}\z/i
 
       def self.Falsey? input, explicit: true
         explicit ? input.to_s =~ FALSEY : input.to_s !~ TRUTHY

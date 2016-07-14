@@ -21,8 +21,8 @@ module Dry
 
         class Matcher # :nodoc:
           SUCCESS = Dry::Matcher::Case.new(
-            match: -> (value) { value.right? },
-            resolve: -> (value) { value.either.value }
+            match: ->(value) { value.right? },
+            resolve: ->(value) { value.either.value }
           )
 
           # rubocop:disable Style/Lambda
