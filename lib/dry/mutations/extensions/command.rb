@@ -23,13 +23,19 @@ module Dry
               FACTORY
             end
           end)
+
+          base.singleton_class.prepend(Module.new do
+            def respond_to_missing?(method_name, include_private = false)
+              [:call, :to_proc].include?(method_name) || super
+            end
+          end)
         end
 
         attr_reader :validation
 
         def initialize(*args)
           @raw_inputs = args.inject(Utils.Hash({})) do |h, arg|
-            fail ArgumentError.new('All arguments must be hashes') unless arg.is_a?(Hash)
+            fail ArgumentError.new("All arguments must be hashes. Given: #{args.inspect}.") unless arg.is_a?(Hash)
             h.merge!(arg)
           end
 

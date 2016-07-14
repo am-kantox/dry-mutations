@@ -10,7 +10,7 @@ describe Dry::Mutations::Transactions do
       required { string :name, max_length: 5 }
 
       def execute
-        @inputs[:name] << ' Donne'
+        @inputs.tap { |inp| inp[:name] << ' Donne' }
       end
     end
   end
@@ -20,7 +20,7 @@ describe Dry::Mutations::Transactions do
       required { string :name, max_length: 10 }
 
       def execute
-        @inputs.merge(value: 42)
+        @inputs.merge(amount: 42)
       end
     end
   end
@@ -41,16 +41,20 @@ describe Dry::Mutations::Transactions do
   context 'it works' do
     let(:result) do
       c1 = command1
-      c2 = command1
-      c3 = command1
-      ::Dry::Mutations.Transaction do
-        mutate :command1, c1
-        validate :command2, c2
-        transform :command3, c3
+      c2 = command2
+      c3 = command3
+      extend ::Dry::Mutations::Transactions::DSL
+
+      # We need inplace blocks to create chains.
+      #   It makes sense mostly for `tee` and `try`
+      chain do
+        mutate c1, param: 42
+        validate c2
+        transform c3
       end
     end
     it 'processes the input properly' do
-      expect(result.()).to eq([])
+      expect(result.(input)).to eq(::Dry::Monads::Right(Hashie::Mash.new(amount: 42, name: "John Donne")))
     end
   end
 end

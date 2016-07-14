@@ -12,6 +12,43 @@ module Dry
         explicit ? input.to_s =~ TRUTHY : input.to_s !~ FALSEY
       end
 
+      def self.Snake(whatever, short: false, symbolize: false)
+        result = whatever.to_s.split('::').map do |e|
+          e.gsub(/(?<=[^\W_])(?=[A-Z])/, '_').downcase
+        end
+        result = short ? result.last : result.join('__')
+        symbolize ? result.to_sym : result
+      end
+
+      def self.SnakeSafe(whatever, existing = [], update_existing: true, short: false, symbolize: false)
+        result = Snake(whatever, short: short)
+        str = loop do
+          break result unless existing.include? result
+          suffix = result[/(?<=_)\d+(?=\z)/]
+          suffix.nil? ? result << '_1' : result[-suffix.length..-1] = (suffix.to_i + 1).to_s
+        end.tap { |r| existing << r if update_existing }
+        symbolize ? str.to_sym : str
+      end
+
+      def self.Camel(whatever)
+        whatever.to_s.split('__').map do |s|
+          s.gsub(/(?:\A|_)(?<letter>\w)/) { $~[:letter].upcase }
+        end.join('::')
+      end
+
+      def self.Constant(whatever)
+        ::Kernel.const_get(Camel(whatever))
+      end
+
+      def self.Λ input, **params
+        case
+        when params[:method] then input.method(params.delete[:method].to_sym).to_proc
+        when input.respond_to?(:to_proc) then input.to_proc
+        when input.respond_to?(:call) then input.method(:call).to_proc
+        else fail ArgumentError, "The executor given can not be executed (forgot to specify :method param?)"
+        end
+      end
+
       # Lazy detector for Hashie::Mash
       #   TODO: Make it possible to choose friendly hash implementation
       USE_HASHIE_MASH = Falsey?(ENV['PLAIN_HASHES'], explicit: false) && begin
@@ -28,7 +65,7 @@ module Dry
       # Converts a hash to a best available hash implementation
       #   with stringified keys, since `Mutations` expect hash
       #   keys to be strings.
-      def self.Hash hash
+      def self.Hash hash = {}
         case
         when USE_HASHIE_MASH
           Kernel.const_get('::Hashie::Mash').new(hash)

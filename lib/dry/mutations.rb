@@ -1,5 +1,9 @@
 require 'mutations'
+
 require 'dry-validation'
+require 'dry-transaction'
+require 'dry-matcher'
+require 'dry-monads'
 
 require 'dry/mutations/version'
 require 'dry/mutations/utils'

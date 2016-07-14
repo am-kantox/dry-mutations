@@ -1,6 +1,3 @@
-require 'dry-matcher'
-require 'dry-monads'
-
 module Dry
   module Mutations
     module Extensions
@@ -25,7 +22,6 @@ module Dry
             resolve: ->(value) { value.either.value }
           )
 
-          # rubocop:disable Style/Lambda
           # rubocop:disable Style/BlockDelimiters
           FAILURE = Dry::Matcher::Case.new(
             match: -> (value, *patterns) {
@@ -34,7 +30,6 @@ module Dry
             resolve: -> (value) { value.either.value }
           )
           # rubocop:enable Style/BlockDelimiters
-          # rubocop:enable Style/Lambda
 
           # Build the matcher
           def self.!

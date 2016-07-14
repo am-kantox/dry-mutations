@@ -22,5 +22,12 @@ describe Dry::Mutations::Utils do
       expect(Dry::Mutations::Utils.Guards(:min_length, :max_length, **input)).to eq(min_size?: 11, max_size?: 21)
       expect(Dry::Mutations::Utils.Guards([:min_length, :max_length], **input)).to eq(min_size?: 11, max_size?: 21)
     end
+
+    it 'camelizes and snakeizes' do
+      expect(Dry::Mutations::Utils.Snake('AaaBbbCcc::Ddd::Eee_Ff')).to eq('aaa_bbb_ccc__ddd__eee_ff')
+      expect(Dry::Mutations::Utils.Snake('AaaBbb')).to eq('aaa_bbb')
+      expect(Dry::Mutations::Utils.SnakeSafe('AaaBbb', %w(aaa_bbb))).to eq('aaa_bbb_1')
+      expect(Dry::Mutations::Utils.SnakeSafe('AaaBbb', %w(aaa_bbb aaa_bbb_1 aaa_bbb_3))).to eq('aaa_bbb_2')
+    end
   end
 end
