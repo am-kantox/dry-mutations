@@ -25,6 +25,7 @@ module Dry
             singleton_class.send :define_method, :call do |input|
               transaction.(input)
             end
+            singleton_class.send(:alias_method, :run, :call) unless singleton_class.respond_to?(:run)
           end
         end
       end
