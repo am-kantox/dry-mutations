@@ -7,6 +7,10 @@ module Dry
         expected.empty? || expected.all?(&current.method(:respond_to?))
       end
 
+      predicate(:default?) do |_expected, _current|
+        fail Errors::TypeError, "“default” guard is not implemented yet in dry-mutations, sorry for that."
+      end
+
       # FIXME: at the moment this is an exact equivalent of :type? => User
       predicate(:model?) do |expected, current|
         return true if expected.nil?

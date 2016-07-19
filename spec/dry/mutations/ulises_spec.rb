@@ -42,6 +42,7 @@ describe Dry::Mutations::Extensions::Command do
       end
 
       optional do
+        integer :defaulted, default: 42
         with_options empty: true do |empty|
           empty.string :external_ref # external_order_ref (not considered in V1, but possible)
           empty.string :notes # comments
@@ -120,6 +121,11 @@ describe Dry::Mutations::Extensions::Command do
       puts '—' * 60
       puts output.run.result
       puts '—' * 60
+    end
+
+    it 'should work with default: guards' do
+      pending "Not yet implemented"
+      expect(output.run.result).to eq(expected.merge(defaulted: 42))
     end
 
     it 'rejects wrong inputs' do

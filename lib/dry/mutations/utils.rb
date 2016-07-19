@@ -76,6 +76,7 @@ module Dry
         end
       end
 
+      ITSELF = ->(h, k) { h[k] = k }
       DRY_TO_MUTATIONS = {
         min_size?:    :min_length,
         max_size?:    :max_length,
@@ -85,7 +86,7 @@ module Dry
         gteq?:        :min,
         lteq?:        :max
       }.freeze
-      MUTATIONS_TO_DRY = DRY_TO_MUTATIONS.invert.freeze
+      MUTATIONS_TO_DRY = DRY_TO_MUTATIONS.invert.merge(default: :default?).freeze
 
       # Fuzzy converts params between different implementaions
       def self.Guards *keys, **params
@@ -96,7 +97,7 @@ module Dry
 
         map = [DRY_TO_MUTATIONS, MUTATIONS_TO_DRY].detect do |h|
           (h.keys & keys).any?
-        end
+        end || Hash.new(&ITSELF)
 
         map.values_at(*keys).zip(keys.map(&params.method(:[])))
            .to_h
