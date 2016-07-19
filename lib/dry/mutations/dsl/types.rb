@@ -48,23 +48,33 @@ module Dry
         ########################################################################
 
         def duck name, **params
-          current = @current # closure scope
+          # <<- CLOSURE_SCOPE
+          current = @current
+          params = @environs.merge params if @environs
           filled_or_maybe = optionality(params)
+          # CLOSURE_SCOPE
 
           schema do
             __send__(current, name).__send__(filled_or_maybe, duck?: [*params[:methods]])
           end
+
+          define_helper_methods name
         end
 
         # possible params: `class: nil, builder: nil, new_records: false`
         def model name, **params
+          # <<- CLOSURE_SCOPE
           current = @current # closure scope
+          params = @environs.merge params if @environs
           filled_or_maybe = optionality(params)
           params[:class] ||= name.to_s.gsub(/(?:\A|_)./) { |m| m[-1].upcase }
+          # CLOSURE_SCOPE
 
           schema do
             __send__(current, name).__send__(filled_or_maybe, model?: params[:class])
           end
+
+          define_helper_methods name
         end
 
         ########################################################################
@@ -74,24 +84,18 @@ module Dry
         def generic_type name = nil, **params
           fail Errors::AnonymousTypeDetected.new(__callee__) if name.nil?
 
-          params = @environs.merge params if @environs
-
-          # FIXME: :strip => true and siblings should be handled with procs?
+          # <<- CLOSURE_SCOPE
           current = @current # closure scope
-
-          opts = Utils.Guards(params)
-
+          params = @environs.merge params if @environs
           type = [optionality(params), Utils.Type(__callee__)]
+          opts = Utils.Guards(params)
+          # CLOSURE_SCOPE
 
           schema do
             Utils.smart_send(__send__(current, name), *type, **opts)
           end
 
-          unless Nested === self
-            define_method(name) { @inputs[name] }
-            define_method(:"#{name}_present?") { @inputs.key?(name) }
-            define_method(:"#{name}=") { |value| @inputs[name] = value }
-          end
+          define_helper_methods name
         end
 
         %i(string integer float date time boolean).each do |m|
@@ -102,10 +106,18 @@ module Dry
 
         private
 
-        def optionality nils
-          # rubocop:disable Style/NestedTernaryOperator
-          (nils.is_a?(Hash) ? nils[:nils] || nils[:empty] : nils) ? :maybe : :filled
-          # rubocop:enable Style/NestedTernaryOperator
+        def optionality params
+          nils, empty = params.delete(:nils), params.delete(:empty)
+          # FIXME: Should we treat `empty?` in some specific way?
+          nils || empty ? :maybe : :filled
+        end
+
+        def define_helper_methods name
+          unless Nested === self
+            define_method(name) { @inputs[name] }
+            define_method(:"#{name}_present?") { @inputs.key?(name) }
+            define_method(:"#{name}=") { |value| @inputs[name] = value }
+          end
         end
       end
     end

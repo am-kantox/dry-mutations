@@ -50,8 +50,9 @@ describe Dry::Mutations::Extensions::Command do
           string :type
         end
       end
+
       optional do
-        integer :age, min: 10, max: 100
+        integer :age, min: 10, max: 100, nils: true
         array :arr_lvl_0 do
           string :arr_lvl_2_val, max_length: 3
         end
@@ -101,6 +102,29 @@ describe Dry::Mutations::Extensions::Command do
       expect(output).to be_is_a(::Mutations::Command)
       expect(output.run).to be_success
       expect(output.run.result).to eq(expected)
+    end
+  end
+
+  context 'simple hash without optionals' do
+    let!(:input) { default_input.reject { |k, _| k == :age } }
+    it 'does not require optionals in input' do
+      expect(output.run).to be_success
+    end
+  end
+
+  context 'simple hash with nils permitted' do
+    let!(:input) { default_input.merge(age: nil) }
+    it 'does not require optionals in input' do
+      expect(output.run).to be_success
+    end
+  end
+
+  context 'simple hash with nils not permitted' do
+    let!(:input) { default_input.merge(amount: nil) }
+    it 'does not require optionals in input' do
+      expect(output.run).not_to be_success
+      expect(output.run.errors.size).to eq 1
+      expect(output.messages.map(&:text)).to match_array(["must be filled"])
     end
   end
 
