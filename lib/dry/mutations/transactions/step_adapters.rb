@@ -17,8 +17,7 @@ module Dry
           end
 
           def call(step, *args, input)
-            binding.pry unless args.empty? # FIXME
-            step.operation.(input)
+            step.operation.(input, *args)
           end
         end
 

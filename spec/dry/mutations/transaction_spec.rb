@@ -48,7 +48,9 @@ describe Dry::Mutations::Transactions do
       # We need inplace blocks to create chains.
       #   It makes sense mostly for `tee` and `try`
       chain do
-        mutate c1, param: 42
+        tranquilo(::Dry::Transaction(container: container, step_adapters: step_adapters) do
+          mutate c1, param: 42
+        end, catch: StandardError)
         validate c2
         transform c3
       end

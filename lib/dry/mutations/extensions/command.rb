@@ -2,6 +2,8 @@ module Dry
   module Mutations
     module Extensions
       module Command # :nodoc:
+        include Dry::Monads::Either::Mixin
+
         def self.prepended base
           fail ArgumentError, "Can not prepend #{self.class} to #{base.class}: base class must be a ::Mutations::Command descendant." unless base < ::Mutations::Command
           base.extend(DSL::Module) unless base.ancestors.include?(DSL::Module)
@@ -17,7 +19,6 @@ module Dry
             if base.name && !::Kernel.methods.include?(base_name = base.name.split('::').last.to_sym)
               ::Kernel.class_eval <<-FACTORY, __FILE__, __LINE__ + 1
                 def #{base_name}(*args)
-                  puts "Gonna call [#{base}.call(*args)] with \#{args.inspect}"
                   #{base}.call(*args)
                 end
               FACTORY
@@ -35,6 +36,7 @@ module Dry
 
         def initialize(*args)
           @raw_inputs = args.inject(Utils.Hash({})) do |h, arg|
+            arg = arg.value if arg.is_a?(Right)
             fail ArgumentError.new("All arguments must be hashes. Given: #{args.inspect}.") unless arg.is_a?(Hash)
             h.merge!(arg)
           end

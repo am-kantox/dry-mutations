@@ -8,6 +8,8 @@ module Dry
       #   step :persist
       # end
       module DSL # :nodoc:
+        include Dry::Monads::Either::Mixin
+
         def chain **params
           return enum_for(:chain) unless block_given? # FIXME: Needed? Works? Remove?
 

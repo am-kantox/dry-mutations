@@ -11,6 +11,12 @@ module Dry
 
       class TypeError < StandardError # :nodoc:
       end
+
+      class ChainExecutionError < StandardError # :nodoc:
+        def initialize left
+          super left.inspect # FIXME
+        end
+      end
     end
   end
 end
