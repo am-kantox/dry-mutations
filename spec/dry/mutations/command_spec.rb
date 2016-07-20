@@ -74,31 +74,8 @@ describe Dry::Mutations::Extensions::Command do
     end
   end
 
-  let!(:raising_command) do
-    Class.new(::Mutations::Command) do
-      prepend ::Dry::Mutations::Extensions::Command
-
-      required do
-        integer :amount
-      end
-      def execute
-        amount / 0
-      end
-    end
-  end
-
-  let!(:dummy_command) do
-    Class.new(::Mutations::Command) do
-      prepend ::Dry::Mutations::Extensions::Command
-      prepend ::Dry::Mutations::Extensions::Dummy
-
-      required do
-        integer :amount
-      end
-    end
-  end
-
-  let(:output) { simple_command.new(input) }
+  let(:command) { simple_command }
+  let(:output) { command.new(input) }
   let(:expected) { ::Dry::Mutations::Utils.Hash(input) }
 
   before do
@@ -117,12 +94,51 @@ describe Dry::Mutations::Extensions::Command do
   end
 
   context 'dummy executor (validate only)' do
+    let!(:command) do
+      Class.new(::Mutations::Command) do
+        prepend ::Dry::Mutations::Extensions::Command
+        prepend ::Dry::Mutations::Extensions::Dummy
+
+        required do
+          integer :amount
+        end
+      end
+    end
     let(:input) { { amount: 42 } }
-    let(:dummy_output) { dummy_command.new(input) }
     it 'processes the input properly' do
-      expect(dummy_output).to be_is_a(::Mutations::Command)
-      expect(dummy_output.run).to be_success
-      expect(dummy_output.run.result).to eq(expected)
+      expect(output).to be_is_a(::Mutations::Command)
+      expect(output.run).to be_success
+      expect(output.run.result).to eq(expected)
+    end
+  end
+
+  context 'duck predicate' do
+    let!(:command) do
+      Class.new(::Mutations::Command) do
+        prepend ::Dry::Mutations::Extensions::Command
+        prepend ::Dry::Mutations::Extensions::Dummy
+
+        required do
+          duck :amount, methods: :to_i
+        end
+      end
+    end
+    context 'proper input' do
+      let(:input) { { amount: '42' } }
+      it 'processes the input properly' do
+        expect(output).to be_is_a(::Mutations::Command)
+        expect(output.run).to be_success
+        expect(output.run.result).to eq(expected)
+      end
+    end
+    context 'improper input' do
+      let(:input) { { amount: [42] } }
+      it 'fails to validate predicate' do
+        expect(output).to be_is_a(::Mutations::Command)
+        expect(output.run).not_to be_success
+        expect(output.run.value.keys.size).to eq(1)
+        expect(output.run.value.keys.first).to eq('amount')
+      end
     end
   end
 
@@ -241,13 +257,25 @@ describe Dry::Mutations::Extensions::Command do
   end
 
   context 'raising command' do
-    it 'handles exceptions' do
-      expect { raising_command.run(amount: 5) }.not_to raise_exception
-      expect { raising_command.run(amount: 0) }.not_to raise_exception
+    let(:command) do
+      Class.new(::Mutations::Command) do
+        prepend ::Dry::Mutations::Extensions::Command
 
-      expect(raising_command.run(amount: 0)).not_to be_success
-      expect(raising_command.run(amount: 0).errors.symbolic).to eq('♻' => :runtime_exception)
-      expect(raising_command.run(amount: 0).errors.message).to eq('♻' => 'divided by 0')
+        required do
+          integer :amount
+        end
+        def execute
+          amount / 0
+        end
+      end
+    end
+    it 'handles exceptions' do
+      expect { command.run(amount: 5) }.not_to raise_exception
+      expect { command.run(amount: 0) }.not_to raise_exception
+
+      expect(command.run(amount: 0)).not_to be_success
+      expect(command.run(amount: 0).errors.symbolic).to eq('♻' => :runtime_exception)
+      expect(command.run(amount: 0).errors.message).to eq('♻' => 'divided by 0')
     end
   end
 
