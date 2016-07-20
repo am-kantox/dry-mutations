@@ -74,10 +74,25 @@ class ComposedMutation
   extend ::Dry::Mutations::Transactions::DSL
   chain do
     validate ComposedValidation
-    validate ComposedTransform
+    transform ComposedTransform
     mutate NestedMutation
   end
 end
+```
+
+### Call syntax
+
+Basically, any call syntax is supported:
+
+```ruby
+# preferred
+ComposedMutation.(input)          # returns (Either ∨ Outcome) object
+
+# legacy
+ComposedMutation.run(input)       # returns (Either ∨ Outcome) object
+ComposedMutation.new(input).run   # returns (Either ∨ Outcome) object
+ComposedMutation.run!(input)      # throws Mutation::ValidationException
+ComposedMutation.new(input).run!  # throws Mutation::ValidationException
 ```
 
 ## Usage
