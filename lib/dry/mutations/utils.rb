@@ -116,7 +116,16 @@ module Dry
               ::Dry::Types['strict.string'], fn: ->(v) { v.to_s.strip }
             )
           end
-        when 'integer' then :int?
+        when 'date'
+          ::Dry::Types::Constructor.new(
+            ::Dry::Types['strict.date'], fn: ->(v) { v.is_a?(Date) ? v : (Date.parse(v.to_s) rescue v) }
+          )
+        when 'integer'
+          :int?
+          # FIXME: Why ints are not coercible?!
+          #::Dry::Types::Constructor.new(
+          #  ::Dry::Types['coercible.int'], fn: ->(v) { v.is_a?(Integer) ? v : (v.to_i rescue v) }
+          #)
         when 'boolean' then :bool?
         else :"#{type}?"
         end

@@ -112,6 +112,51 @@ describe Dry::Mutations::Extensions::Command do
     end
   end
 
+  context 'date coercion works' do
+    let!(:input) { { today: Date.today.strftime } }
+    let!(:command) do
+      Class.new(::Mutations::Command) do
+        prepend ::Dry::Mutations::Extensions::Command
+
+        required do
+          date :today
+        end
+
+        def execute
+          @inputs
+        end
+      end
+    end
+
+    it 'coerces input to be a date' do
+      expect(command.(input)).to be_success
+      expect(command.(input).value[:today]).to eq(Date.today)
+    end
+  end
+
+  context 'integer coercion works' do
+    let!(:input) { { amount: '42' } }
+    let!(:command) do
+      Class.new(::Mutations::Command) do
+        prepend ::Dry::Mutations::Extensions::Command
+
+        required do
+          integer :amount
+        end
+
+        def execute
+          @inputs
+        end
+      end
+    end
+
+    it 'coerces input to be an integer' do
+      pending "For unknown reason it’s not working in the current implementation"
+      expect(command.(input)).to be_success
+      expect(command.(input).value[:amount]).to eq(42)
+    end
+  end
+
   context 'simple hash with nils permitted' do
     let!(:input) { default_input.merge(age: nil) }
     it 'does not require optionals in input' do

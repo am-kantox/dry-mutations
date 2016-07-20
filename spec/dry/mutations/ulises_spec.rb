@@ -65,7 +65,7 @@ describe Dry::Mutations::Extensions::Command do
         maturity_days_set: { days: 3 },
         maturity_date_set: { date: Date.today }
       },
-      expiration_date_set: { date: Date.today },
+      expiration_date_set: { date: Date.today.strftime },
       bank_set: {
         bank_reference: '',
         invoice_files: []
@@ -106,7 +106,9 @@ describe Dry::Mutations::Extensions::Command do
   end
 
   let(:output) { mutation.new(input) }
-  let(:expected) { ::Dry::Mutations::Utils.Hash(input) }
+  let(:expected) do
+    ::Dry::Mutations::Utils.Hash(input).merge(expiration_date_set: { date: Date.today })
+  end
 
   let(:bad_output) { mutation.new(bad_input) }
 
