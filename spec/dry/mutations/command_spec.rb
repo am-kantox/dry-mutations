@@ -87,6 +87,17 @@ describe Dry::Mutations::Extensions::Command do
     end
   end
 
+  let!(:dummy_command) do
+    Class.new(::Mutations::Command) do
+      prepend ::Dry::Mutations::Extensions::Command
+      prepend ::Dry::Mutations::Extensions::Dummy
+
+      required do
+        integer :amount
+      end
+    end
+  end
+
   let(:output) { simple_command.new(input) }
   let(:expected) { ::Dry::Mutations::Utils.Hash(input) }
 
@@ -102,6 +113,16 @@ describe Dry::Mutations::Extensions::Command do
       expect(output).to be_is_a(::Mutations::Command)
       expect(output.run).to be_success
       expect(output.run.result).to eq(expected)
+    end
+  end
+
+  context 'dummy executor (validate only)' do
+    let(:input) { { amount: 42 } }
+    let(:dummy_output) { dummy_command.new(input) }
+    it 'processes the input properly' do
+      expect(dummy_output).to be_is_a(::Mutations::Command)
+      expect(dummy_output.run).to be_success
+      expect(dummy_output.run.result).to eq(expected)
     end
   end
 

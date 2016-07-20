@@ -26,6 +26,60 @@ Or install it yourself as:
 
     $ gem install dry-mutations
 
+## Was ⇒ Is
+
+### Was
+
+```ruby
+class ComposedMutation < Mutations::Command
+  ...
+  def validate
+    additional_validate(input1, input2)
+    @nested = NestedMutation.new(inputs, input1: input1, input2: input2)
+    unless @nested.validation_outcome.success?
+      @nested.validation_outcome.errors.each do |key, error|
+        add_error(key.to_sym, error.symbolic, error.message)
+      end
+    end
+  end
+
+  def execute
+    @nested.run!
+  end
+end
+```
+
+### Is
+```ruby
+class ComposedValidation < Mutations::Command
+  prepend ::Dry::Mutations::Extensions::Command
+  prepend ::Dry::Mutations::Extensions::Dummy
+
+  ...
+  def validate
+    additional_validate(input1, input2)
+  end
+end
+
+class ComposedTransform < Mutations::Command
+  prepend ::Dry::Mutations::Extensions::Command
+
+  ...
+  def execute
+    inputs.merge(input1: input1, input2: input2)
+  end
+end
+
+class ComposedMutation
+  extend ::Dry::Mutations::Transactions::DSL
+  chain do
+    validate ComposedValidation
+    validate ComposedTransform
+    mutate NestedMutation
+  end
+end
+```
+
 ## Usage
 
 ### Enable extensions for the specific mutation’s command
