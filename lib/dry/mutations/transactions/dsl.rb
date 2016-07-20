@@ -12,6 +12,14 @@ module Dry
 
         def self.extended base
           fail Errors::TypeError.new("Extended class [#{base}] should not respond to :call, it is defined by this extension.") if base.respond_to?(:call)
+          base.send :define_method, :initialize do |input|
+            @input = input
+          end unless base.instance_methods(false).include?(:initialize)
+          %i(run run!).each do |meth|
+            base.send :define_method, meth do
+              base.public_send(meth, @input)
+            end unless base.instance_methods(false).include?(meth)
+          end
         end
 
         def chain **params
@@ -27,6 +35,9 @@ module Dry
             end
             singleton_class.send :define_method, :run do |input|
               ::Dry::Mutations::Extensions::Outcome(transaction.(input))
+            end
+            singleton_class.send :define_method, :run! do |input|
+              ::Dry::Mutations::Extensions::Outcome!(transaction.(input))
             end
           end
         end

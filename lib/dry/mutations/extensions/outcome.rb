@@ -80,6 +80,12 @@ module Dry
         else fail TypeError.new("Wrong input passed to Outcome(): [#{input.inspect}]")
         end
       end
+
+      def self.Outcome! input
+        outcome = Outcome(input)
+        raise ::Mutations::ValidationException.new(outcome.errors) unless outcome.success?
+        outcome.value
+      end
     end
   end
 end
