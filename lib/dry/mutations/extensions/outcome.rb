@@ -7,10 +7,10 @@ module Dry
         class EitherCalculator # :nodoc:
           include Dry::Monads::Either::Mixin
 
-          attr_accessor :outcome
+          attr_reader :outcome, :either
 
-          def calculate
-            Right(outcome).bind do |value|
+          def initialize(outcome)
+            @either = Right(@outcome = outcome).bind do |value|
               value.success? ? Right(value.result) : Left(value.errors)
             end
           end
@@ -41,37 +41,43 @@ module Dry
         end
 
         def self.prepended base
-          fail ArgumentError, "Can not prepend #{self.class} to #{base.class}: base class must be a ::Mutations::Outcome descendant." unless base < ::Mutations::Outcome
+          fail ArgumentError, "Can not prepend #{self} to #{base}: base class must be a ::Mutations::Outcome descendant." unless base <= ::Mutations::Outcome
         end
 
-        attr_reader :either
-
-        def initialize(is_success, result, errors, inputs)
-          super is_success, result, errors, inputs
-          etherify!
-        end
-
-        def eitherify!
-          calc = EitherCalculator.new
-          calc.outcome = self
-          @either = calc.calculate
+        def either
+          @either ||= EitherCalculator.new(self).either
         end
 
         def right?
-          @either.is_a?(Right)
+          either.is_a?(Right)
         end
 
         def left?
-          @either.is_a?(Left)
+          either.is_a?(Left)
         end
 
         def value
-          @either.value
+          either.value
         end
 
         def match
           fail 'Call to Outcome#match requires a block passed.' unless block_given?
           Matcher.!.(self, &Proc.new)
+        end
+      end
+
+      ::Mutations::Outcome.prepend Outcome unless ::Mutations::Outcome.ancestors.include?(Outcome)
+
+      def self.Outcome input
+        case input
+        when ::Mutations::Outcome then input
+        when ::Dry::Monads::Either::Left
+          ::Mutations::Outcome.new(false, nil, input.value, nil)
+        when ::Dry::Monads::Either::Right
+          ::Mutations::Outcome.new(true, input.value, nil, nil)
+        when ->(inp) { inp.respond_to?(:success?) }
+          ::Mutations::Outcome.new(input.success?, input.success? && input, input.success? || input, nil)
+        else fail TypeError.new("Wrong input passed to Outcome(): [#{input.inspect}]")
         end
       end
     end

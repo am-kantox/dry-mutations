@@ -75,13 +75,7 @@ module Dry
         ########################################################################
 
         def validation_outcome(result = nil)
-          # Outcome.new(!has_errors?, has_errors? ? nil : result, @errors, @inputs)
-          super.tap do |outcome|
-            outcome.singleton_class.tap do |klazz|
-              klazz.prepend Outcome unless klazz.ancestors.include?(Outcome)
-            end
-            outcome.eitherify!
-          end
+          ::Dry::Mutations::Extensions::Outcome(super)
         end
 
         def execute

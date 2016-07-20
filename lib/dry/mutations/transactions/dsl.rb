@@ -25,7 +25,9 @@ module Dry
             singleton_class.send :define_method, :call do |input|
               transaction.(input)
             end
-            singleton_class.send(:alias_method, :run, :call) unless singleton_class.respond_to?(:run)
+            singleton_class.send :define_method, :run do |input|
+              ::Dry::Mutations::Extensions::Outcome(transaction.(input))
+            end
           end
         end
       end
