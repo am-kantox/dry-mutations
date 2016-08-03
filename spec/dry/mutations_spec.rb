@@ -18,4 +18,39 @@ describe Dry::Mutations do
       expect(Outcome!(input)).to be_empty
     end
   end
+
+  describe '#Schema' do
+    it 'generates a schema' do
+      expect(Dry::Mutations.Schema).to respond_to(:call)
+    end
+
+    it 'gets the block' do
+      schema = Dry::Mutations.Schema do
+        required(:key) { str? }
+      end
+      expect(schema.call({})).not_to be_success
+      expect(schema.call({key: 1})).not_to be_success
+      expect(schema.call({key: '1'})).to be_success
+    end
+
+    describe 'mutations predicates' do
+      it 'exposes the `model?` predicate' do
+        schema = Dry::Mutations.Schema do
+          optional(:decimal) { model?(BigDecimal) }
+        end
+
+        expect(schema.call({decimal: 2})).not_to be_success
+        expect(schema.call({decimal: BigDecimal(2)})).to be_success
+      end
+
+      it 'exposes the `duck?` predicate' do
+        schema = Dry::Mutations.Schema do
+          optional(:stuff) { duck?([:succ]) }
+        end
+
+        expect(schema.call({stuff: Object.new})).not_to be_success
+        expect(schema.call({stuff: 'I actually have a succ'})).to be_success
+      end
+    end
+  end
 end

@@ -13,6 +13,7 @@ require 'dry/mutations/errors'
 require 'dry/mutations/dsl'
 require 'dry/mutations/extensions'
 require 'dry/mutations/transactions'
+require 'dry/mutations/schema'
 
 require 'dry/mutations/globals'
 
@@ -29,6 +30,10 @@ module Dry
       %i(Schema Blocks Types Weirdo).each do |mod|
         target.singleton_class.prepend ::Dry::Mutations::DSL.const_get(mod)
       end
+    end
+
+    def self.Schema(options = {}, &block)
+      ::Dry::Validation.Schema(::Dry::Mutations::Schema, options, &block)
     end
 
     DSL::Types::Nested.extend DSL::Module
