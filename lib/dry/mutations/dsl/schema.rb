@@ -1,6 +1,21 @@
 module Dry
   module Mutations
-    module DSL
+    module DSL # :nodoc:
+      MESSAGES_FILE = (::File.join __dir__, '..', '..', '..', '..', 'config', 'messages.yml').freeze
+
+      def self.Schema
+        Validation.Schema do
+          configure do
+            # config.messages = :i18n
+            config.messages_file = MESSAGES_FILE
+            config.hash_type = :symbolized
+            config.input_processor = :sanitizer
+
+            predicates(Mutations::Predicates)
+          end
+        end
+      end
+
       module Schema # :nodoc:
         def schema
           @schema ||= derived_schema
@@ -18,20 +33,7 @@ module Dry
             next if [this, ::Mutations::Command, ::Dry::Mutations::Extensions::Command].include?(klazz)
             klazz.respond_to?(:schema) && klazz.schema.is_a?(Validation::Schema)
           end
-          parent_with_schema ? Class.new(parent_with_schema.schema.class).new : empty_schema
-        end
-
-        def empty_schema
-          Validation.Schema do
-            configure do
-              # config.messages = :i18n
-              config.messages_file = ::File.join __dir__, '..', '..', '..', '..', 'config', 'messages.yml'
-              config.hash_type = :symbolized
-              config.input_processor = :sanitizer
-
-              predicates(Mutations::Predicates)
-            end
-          end
+          parent_with_schema ? Class.new(parent_with_schema.schema.class).new : ::Dry::Mutations::DSL::Schema()
         end
       end
     end

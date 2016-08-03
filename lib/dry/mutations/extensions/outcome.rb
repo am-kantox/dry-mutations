@@ -1,6 +1,6 @@
 module Dry
   module Mutations
-    module Extensions
+    module Extensions # :nodoc:
       module Outcome # :nodoc:
         include Dry::Monads::Either::Mixin
 

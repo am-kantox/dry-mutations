@@ -14,6 +14,8 @@ require 'dry/mutations/dsl'
 require 'dry/mutations/extensions'
 require 'dry/mutations/transactions'
 
+require 'dry/mutations/globals'
+
 module Dry
   # A dry implementation of mutations interface introduced by
   #   [Jonathan Novak](mailto:jnovak@gmail.com) in
