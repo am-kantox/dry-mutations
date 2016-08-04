@@ -1,19 +1,8 @@
 module Dry
   module Mutations
     module DSL # :nodoc:
-      MESSAGES_FILE = (::File.join __dir__, '..', '..', '..', '..', 'config', 'messages.yml').freeze
-
       def self.Schema
-        Validation.Schema do
-          configure do
-            # config.messages = :i18n
-            config.messages_file = MESSAGES_FILE
-            config.hash_type = :symbolized
-            config.input_processor = :sanitizer
-
-            predicates(Mutations::Predicates)
-          end
-        end
+        Dry::Mutations.Schema
       end
 
       module Schema # :nodoc:
