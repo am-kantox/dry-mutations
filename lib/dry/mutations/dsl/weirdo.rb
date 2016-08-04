@@ -15,7 +15,7 @@ module Dry
 
             __send__(current, name) { __send__ :"#{name}?" }
           end
-        end
+        end if ENV['USE_WEIRDO_HANDLER']
       end
     end
   end

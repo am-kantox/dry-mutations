@@ -27,7 +27,7 @@ module Dry
   #   schemas moight be used to describe validation rules.
   module Mutations
     def self.inject target
-      %i(Schema Blocks Types Weirdo).each do |mod|
+      DSL::BRICKS.each do |mod|
         target.singleton_class.prepend ::Dry::Mutations::DSL.const_get(mod)
       end
     end
