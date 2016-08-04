@@ -51,6 +51,26 @@ describe Dry::Mutations::Extensions::Command do
     end
   end
 
+  context 'it might be used with #bind (left)' do
+    let(:input) { left_input }
+    it 'processes the input properly' do
+      expect(output).to be_is_a(::Mutations::Command)
+      expect(left_outcome.either.bind do |mm|
+        mm
+      end).to be_left
+    end
+  end
+
+  context 'it might be used with #bind (right)' do
+    let(:input) { right_input }
+    it 'processes the input properly' do
+      expect(output).to be_is_a(::Mutations::Command)
+      expect(right_outcome.either.bind do |_|
+        42
+      end).to eq 42
+    end
+  end
+
   context 'it can make either out of nearly everything' do
     let(:input) do
       Class.new do
