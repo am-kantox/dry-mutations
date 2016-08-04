@@ -65,7 +65,7 @@ describe Dry::Mutations::Extensions::Command do
         def errors
           "42 is not an answer to everything"
         end
-      end.tap { |c| c.prepend ::Dry::Mutations::Extensions::Outcome }.new
+      end.tap { |c| c.prepend ::Dry::Mutations::Extensions::Either }.new
     end
     it 'processes the input properly' do
       expect(input).to be_respond_to :match
@@ -82,7 +82,7 @@ describe Dry::Mutations::Extensions::Command do
         def errors
           "42 is not an answer to everything"
         end
-      end.tap { |c| c.prepend ::Dry::Mutations::Extensions::Outcome }.new
+      end.tap { |c| c.prepend ::Dry::Mutations::Extensions::Either }.new
     end
     it 'processes the input properly' do
       expect { input }.to raise_exception ArgumentError, /base class must look like an either/

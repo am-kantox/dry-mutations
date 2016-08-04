@@ -1,7 +1,7 @@
 module Dry
   module Mutations
     module Extensions # :nodoc:
-      module Outcome # :nodoc:
+      module Either # :nodoc:
         include Dry::Monads::Either::Mixin
 
         class EitherCalculator # :nodoc:
@@ -69,12 +69,22 @@ module Dry
         end
 
         def match
-          fail 'Call to Outcome#match requires a block passed.' unless block_given?
+          fail "Call to #{self.class.name}#match requires a block passed." unless block_given?
           Matcher.!.(self, &Proc.new)
         end
       end
 
-      ::Mutations::Outcome.prepend Outcome unless ::Mutations::Outcome.ancestors.include?(Outcome)
+      # rubocop:disable Style/MethodName
+      def self.Either input
+        case input
+        when Class then input.prepend Either unless input.ancestors.include?(Either)
+        when Module then input.include Either unless input.ancestors.include?(Either)
+        else input.singleton_class.prepend Either unless input.singleton_class.ancestors.include?(Either)
+        end
+      end
+
+      Either(::Mutations::Outcome)
+      Either(::Dry::Validation::Result)
 
       def self.Outcome input
         case input
@@ -90,10 +100,11 @@ module Dry
       end
 
       def self.Outcome! input
-        outcome = Outcome(input)
-        raise ::Mutations::ValidationException.new(outcome.errors) unless outcome.success?
-        outcome.value
+        Outcome(input).tap do |outcome|
+          fail ::Mutations::ValidationException.new(outcome.errors) unless outcome.success?
+        end.value
       end
+      # rubocop:enable Style/MethodName
     end
   end
 end
