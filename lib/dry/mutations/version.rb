@@ -1,5 +1,5 @@
 module Dry
   module Mutations
-    VERSION = '0.8.91'.freeze
+    VERSION = '0.8.92'.freeze
   end
 end
