@@ -93,22 +93,60 @@ describe Dry::Mutations::Extensions::Command do
     end
   end
 
-  context 'dummy executor (validate only)' do
+  context 'sieve executor (validate only)' do
     let!(:command) do
       Class.new(::Mutations::Command) do
         prepend ::Dry::Mutations::Extensions::Command
-        prepend ::Dry::Mutations::Extensions::Dummy
+        prepend ::Dry::Mutations::Extensions::Sieve
 
         required do
           integer :amount
         end
       end
     end
-    let(:input) { { amount: 42 } }
+    let(:input) { { amount: 42, filtered: 42 } }
+    it 'processes the input properly' do
+      expect(output).to be_is_a(::Mutations::Command)
+      expect(output.run).to be_success
+      expect(output.run.result).to eq('amount' => 42)
+    end
+  end
+
+  context 'pipe executor (validate only)' do
+    let!(:command) do
+      Class.new(::Mutations::Command) do
+        prepend ::Dry::Mutations::Extensions::Command
+        prepend ::Dry::Mutations::Extensions::Pipe
+
+        required do
+          integer :amount
+        end
+      end
+    end
+    let(:input) { { amount: 42, filtered: 42 } }
     it 'processes the input properly' do
       expect(output).to be_is_a(::Mutations::Command)
       expect(output.run).to be_success
       expect(output.run.result).to eq(expected)
+    end
+  end
+
+  context 'wrapper executor (validate only)' do
+    let!(:command) do
+      Class.new(::Mutations::Command) do
+        prepend ::Dry::Mutations::Extensions::Command
+        prepend ::Dry::Mutations::Extensions::Wrapper
+
+        required do
+          integer :amount
+        end
+      end
+    end
+    let(:input) { { amount: 42, filtered: 42 } }
+    it 'processes the input properly' do
+      expect(output).to be_is_a(::Mutations::Command)
+      expect(output.run).to be_success
+      expect(output.run.result.values).to match_array([expected])
     end
   end
 
