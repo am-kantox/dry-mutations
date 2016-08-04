@@ -22,7 +22,7 @@ describe Dry::Mutations::Extensions::Command do
     end
   end
 
-  let(:output)        { either_command.new(right_input) }
+  let(:output)        { either_command.new(input) }
   let(:right_outcome) { output.run }
   let(:left_outcome)  { either_command.new(left_input).run }
   let(:expected)      { ::Dry::Mutations::Utils.Hash(right_input) }
@@ -48,6 +48,44 @@ describe Dry::Mutations::Extensions::Command do
       expect(left_outcome.match { |m| m.failure('amount', &:keys) }).to match_array(%w(amount name))
       expect(left_outcome.match { |m| m.failure('non_existing', &:keys) }).to be_nil
       expect(left_outcome.match { |m| m.success(&:keys) }).to be_nil
+    end
+  end
+
+  context 'it can make either out of nearly everything' do
+    let(:input) do
+      Class.new do
+        def success?
+          true
+        end
+
+        def output
+          42
+        end
+
+        def errors
+          "42 is not an answer to everything"
+        end
+      end.tap { |c| c.prepend ::Dry::Mutations::Extensions::Outcome }.new
+    end
+    it 'processes the input properly' do
+      expect(input).to be_respond_to :match
+    end
+  end
+
+  context 'it can make either out of nearly everything' do
+    let(:input) do
+      Class.new do
+        def output
+          42
+        end
+
+        def errors
+          "42 is not an answer to everything"
+        end
+      end.tap { |c| c.prepend ::Dry::Mutations::Extensions::Outcome }.new
+    end
+    it 'processes the input properly' do
+      expect { input }.to raise_exception ArgumentError, /base class must look like an either/
     end
   end
 end

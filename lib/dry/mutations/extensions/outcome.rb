@@ -10,8 +10,9 @@ module Dry
           attr_reader :outcome, :either
 
           def initialize(outcome)
+            @∨ = outcome.class.instance_variable_get(:@∨)
             @either = Right(@outcome = outcome).bind do |value|
-              value.success? ? Right(value.result) : Left(value.errors)
+              value.public_send(@∨[:success]) ? Right(value.public_send(@∨[:right])) : Left(value.public_send(@∨[:left]))
             end
           end
         end
@@ -41,8 +42,15 @@ module Dry
         end
 
         def self.prepended base
-          fail ArgumentError, "Can not prepend #{self} to #{base}: base class must be a ::Mutations::Outcome descendant." unless base <= ::Mutations::Outcome
+          λ = base.instance_methods.method(:include?)
+          base.instance_variable_set(:@∨, {
+            left:    [:errors, :left].detect(&λ),
+            right:   [:result, :output, :right].detect(&λ),
+            success: [:success?].detect(&λ)
+          }.reject { |_, v| v.nil? }.merge(base.instance_variable_get(:@∨) || {}))
+          fail ArgumentError, "Can not have #{self} #{__callee__} to #{base}: base class must look like an either." unless base.instance_variable_get(:@∨).size == 3
         end
+        singleton_class.send :alias_method, :included, :prepended
 
         def either
           @either ||= EitherCalculator.new(self).either
