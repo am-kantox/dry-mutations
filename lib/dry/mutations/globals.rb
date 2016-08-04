@@ -7,7 +7,7 @@ module Kernel # :nodoc:
     ::Dry::Mutations::Extensions.Outcome!(input)
   end
 
-  def Schema
-    ::Dry::Mutations::DSL.Schema()
+  def Schema(options = {}, &block)
+    ::Dry::Validation.Schema(::Dry::Mutations::DSL.Schema(), options, &block)
   end
 end
