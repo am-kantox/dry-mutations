@@ -6,6 +6,7 @@ module Dry
       #   which should return the step’s result wrapped in an `Either` object.
       class Tranquilo < StepAdapters::Move # :nodoc:
         def call(step, *args, input)
+          # TODO: FIXME: PENDING: when block passing is merged into dry-validation
           step.operation.(input, *args)
         end
       end

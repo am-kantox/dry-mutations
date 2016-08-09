@@ -7,7 +7,7 @@ describe Dry::Mutations::Transactions do
   let!(:command1) do
     Class.new(::Mutations::Command) do
       prepend ::Dry::Mutations::Extensions::Command
-      required { string :name, max_length: 5 }
+      prepend ::Dry::Mutations::Extensions::Hole
 
       def execute
         @inputs.tap { |inp| inp[:name] << ' Donne' }
@@ -27,13 +27,18 @@ describe Dry::Mutations::Transactions do
   let!(:command3) do
     Class.new(::Mutations::Command) do
       prepend ::Dry::Mutations::Extensions::Command
+      prepend ::Dry::Mutations::Extensions::Sieve
       required do
         string :name, max_length: 10
         integer :amount, max: 42
       end
-
+    end
+  end
+  let!(:command0) do
+    Class.new(::Mutations::Command) do
+      prepend ::Dry::Mutations::Extensions::Command
       def execute
-        @inputs
+        fail StandardError, "Hi, I am failed. Sorry for that."
       end
     end
   end
@@ -49,9 +54,7 @@ describe Dry::Mutations::Transactions do
         # We need inplace blocks to create chains.
         #   It makes sense mostly for `tee` and `try`
         chain do
-          tranquilo(::Dry::Transaction(container: container, step_adapters: step_adapters) do
-            mutate c1, param: 42
-          end, catch: StandardError)
+          tranquilo c1
           validate c2
           transform c3
         end
@@ -59,6 +62,28 @@ describe Dry::Mutations::Transactions do
     end
     it 'processes the input properly' do
       expect(result.(input)).to eq(::Dry::Monads::Right(Hashie::Mash.new(amount: 42, name: "John Donne")))
+    end
+  end
+
+  context 'it returns Left on error' do
+    let(:result) do
+      c1 = command1
+      c0 = command0
+      c3 = command3
+      Class.new do
+        extend ::Dry::Mutations::Transactions::DSL
+
+        # We need inplace blocks to create chains.
+        #   It makes sense mostly for `tee` and `try`
+        chain do
+          transform c1
+          validate c0
+          transform c3
+        end
+      end
+    end
+    it 'processes the input properly' do
+      expect(result.(input)).to be_left
     end
   end
 end

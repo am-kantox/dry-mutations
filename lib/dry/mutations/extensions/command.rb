@@ -35,11 +35,7 @@ module Dry
         attr_reader :validation
 
         def initialize(*args)
-          @raw_inputs = args.inject(Utils.Hash({})) do |h, arg|
-            arg = arg.value if arg.is_a?(Right)
-            fail ArgumentError.new("All arguments must be hashes. Given: #{args.inspect}.") unless arg.is_a?(Hash)
-            h.merge!(arg)
-          end
+          @raw_inputs = Utils.RawInputs(*args)
 
           @validation_result = schema.(@raw_inputs)
 

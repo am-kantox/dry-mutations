@@ -17,17 +17,23 @@ module Dry
         end
       end
 
+      module Hole # :nodoc:
+        def initialize(*args)
+          @raw_inputs = Utils.RawInputs(*args)
+          # @validation_result = schema.(@raw_inputs)
+          @inputs = Utils.Hash @raw_inputs
+          @errors = nil
+        end
+      end
+
       # rubocop:disable Style/ConstantName
       Dummy = ENV['USE_SIEVE_AS_DUMMY'] ? Sieve : Pipe
       # rubocop:enable Style/ConstantName
 
       module Wrapper # :nodoc:
-        include Dummy
-        prepend(Module.new do
-                  def execute
-                    { Utils.Snake(self.class, short: true, symbolize: true) => super }
-                  end
-                end)
+        def execute
+          { Utils.Snake(self.class, short: true, symbolize: true) => super }
+        end
       end
     end
   end

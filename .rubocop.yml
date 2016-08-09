@@ -29,6 +29,9 @@ Style/MethodName:
     - 'lib/dry/mutations/utils.rb'
     - 'lib/dry/transactions/*.rb'
 
+Style/VariableName:
+  SupportedStyles: snake_case
+
 ################################################################################
 
 Style/Alias:

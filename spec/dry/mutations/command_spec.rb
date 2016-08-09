@@ -140,6 +140,9 @@ describe Dry::Mutations::Extensions::Command do
         required do
           integer :amount
         end
+        def execute
+          @raw_inputs
+        end
       end
     end
     let(:input) { { amount: 42, filtered: 42 } }

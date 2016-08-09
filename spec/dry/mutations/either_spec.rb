@@ -71,6 +71,14 @@ describe Dry::Mutations::Extensions::Command do
     end
   end
 
+  context 'it might be wrapped with #Outcome()' do
+    let(:input) { right_input }
+    it 'processes the input properly' do
+      expect(output).to be_is_a(::Mutations::Command)
+      expect(Outcome!(right_outcome.either)).to eq(expected)
+    end
+  end
+
   context 'it can make either out of nearly everything' do
     let(:input) do
       Class.new do
