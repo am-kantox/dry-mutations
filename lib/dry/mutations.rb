@@ -32,8 +32,11 @@ module Dry
       end
     end
 
-    def self.Schema(options = {}, &block)
-      ::Dry::Validation.Schema(::Dry::Mutations::Schema, options, &block)
+    def self.Schema(input_processor: nil, **options, &block)
+      ::Dry::Validation.Schema(::Dry::Mutations::Schema, **options) do
+        configure { config.input_processor = input_processor } if input_processor
+        instance_exec(&block) if block
+      end
     end
 
     DSL::Types::Nested.extend DSL::Module

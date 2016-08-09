@@ -29,8 +29,8 @@ describe Dry::Mutations do
         required(:key) { str? }
       end
       expect(schema.call({})).not_to be_success
-      expect(schema.call({key: 1})).not_to be_success
-      expect(schema.call({key: '1'})).to be_success
+      expect(schema.call(key: 1)).not_to be_success
+      expect(schema.call(key: '1')).to be_success
     end
 
     describe 'mutations predicates' do
