@@ -18,12 +18,10 @@ module Dry
       end
 
       module Hole # :nodoc:
-        def initialize(*args)
-          @raw_inputs = Utils.RawInputs(*args)
-          # @validation_result = schema.(@raw_inputs)
-          @inputs = Utils.Hash @raw_inputs
-          @errors = nil
+        def self.prepended base
+          base.class_eval { schema(input_processor: :noop) }
         end
+        singleton_class.send :alias_method, :included, :prepended
       end
 
       # rubocop:disable Style/ConstantName
