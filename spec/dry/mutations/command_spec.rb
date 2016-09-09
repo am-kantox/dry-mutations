@@ -247,7 +247,7 @@ describe Dry::Mutations::Extensions::Command do
     it 'does not require optionals in input' do
       expect(output.run).not_to be_success
       expect(output.run.errors.size).to eq 1
-      expect(output.messages.map(&:text)).to match_array(["must be filled"])
+      expect(output.messages.map(&:text)).to match_array(["must be an integer"])
     end
   end
 
@@ -257,7 +257,7 @@ describe Dry::Mutations::Extensions::Command do
       expect(output.run).not_to be_success
       expect(output.run.errors.size).to eq 3
       expect(output.messages.map(&:text)).to match_array(
-        ['size cannot be greater than 5', 'must be an integer', 'must be greater than or equal to 10']
+        ['size cannot be greater than 5', 'must be an integer', 'must be less than or equal to 100']
       )
       expect { output.run! }.to raise_error(::Mutations::ValidationException)
     end

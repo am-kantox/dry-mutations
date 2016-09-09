@@ -1,9 +1,9 @@
 module Dry
   module Mutations
     module Errors
-      class ErrorCompiler < ::Dry::Validation::ErrorCompiler # :nodoc:
+      class ErrorCompiler < ::Dry::Validation::MessageCompiler # :nodoc:
         def initialize schema = nil
-          super (schema && schema.error_compiler || ::Dry::Validation::Schema).messages
+          super (schema && schema.message_compiler || ::Dry::Validation::Schema).messages
         end
 
         def visit_error(node, opts = ::Dry::Validation::EMPTY_HASH)

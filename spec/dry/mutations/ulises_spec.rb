@@ -65,7 +65,7 @@ describe Dry::Mutations::Extensions::Command do
         maturity_days_set: { days: 3 },
         maturity_date_set: { date: Date.today }
       },
-      expiration_date_set: { date: Date.today.strftime },
+      expiration_date_set: { date: Date.today }, #Date.today.strftime },
       bank_set: {
         bank_reference: '',
         invoice_files: []
