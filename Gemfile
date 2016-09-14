@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'dry-validation', github: 'dry-rb/dry-validation'
+gem 'dry-core', github: 'dry-rb/dry-core'
 gem 'dry-monads', github: 'dry-rb/dry-monads'
 gem 'dry-logic', github: 'dry-rb/dry-logic'
 gem 'dry-struct', github: 'dry-rb/dry-struct'
