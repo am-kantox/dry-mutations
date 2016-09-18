@@ -36,8 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'mutations', '~> 0.8'
   spec.add_dependency 'hashie', '~> 3'
 
-
-  spec.add_dependency 'dry-validation', '0.9.5'
+  spec.add_dependency 'dry-validation', '~> 0.9'
   spec.add_dependency 'dry-logic', '~> 0.3', '>= 0.3.0'
   spec.add_dependency 'dry-core', '~> 0.1'
   spec.add_dependency 'dry-struct', '~> 0'
