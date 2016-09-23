@@ -37,7 +37,7 @@ module Dry
         def initialize(*args)
           @raw_inputs = Utils.RawInputs(*args)
 
-          @validation_result = schema.(@raw_inputs)
+          @validation_result = discard_empty!
 
           @inputs = Utils.Hash @validation_result.output
 
@@ -64,6 +64,27 @@ module Dry
 
         def call
           run.either
+        end
+
+        ########################################################################
+        ### Legacy mutations support
+        ########################################################################
+
+        def vacant?(value)
+          case value
+          when NilClass then true
+          when Integer, Float then false # FIXME make sure!
+          when ->(v) { v.respond_to? :empty? } then value.empty?
+          when ->(v) { v.respond_to? :blank? } then value.blank?
+          else false
+          end
+        end
+
+        def discard_empty!
+          discarded = schema.discarded
+          schema.(
+            ::Dry::Mutations::Utils.Hash(@raw_inputs.reject { |k, v| discarded.include?(k.to_sym) && vacant?(v) })
+          )
         end
 
         ########################################################################

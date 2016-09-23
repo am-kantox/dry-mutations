@@ -20,16 +20,20 @@ module Dry
         ########################################################################
 
         # FIXME: errors in double+ nested hashes are not nested! dry-rb glitch?
-        def hash name, **_params, &cb
+        def hash name, **params, &cb
           current = @current # closure scope
 
           schema { __send__(current, name).schema(Nested.!(current, &cb)) }
 
-          define_method(name) { Utils::Hash(@inputs[name]) } unless Nested === self
+          case
+          when params[:discard_empty] then schema.discarded!(name)
+          when Nested === self then # do nothing
+          else define_method(name) { Utils::Hash(@inputs[name]) }
+          end
         end
 
         # FIXME: array of anonymous objects
-        def array name, **_params, &cb
+        def array name, **params, &cb
           current = @current # closure scope
 
           nested =  begin
@@ -40,7 +44,11 @@ module Dry
 
           name.nil? ? schema { each(nested) } : schema { __send__(current, name).each(nested) }
 
-          define_method(name) { @inputs[name] } unless Nested === self
+          case
+          when params[:discard_empty] then schema.discarded!(name)
+          when Nested === self then # do nothing
+          else define_method(name) { @inputs[name] }
+          end
         end
 
         ########################################################################
@@ -95,7 +103,7 @@ module Dry
             Utils.smart_send(__send__(current, name), *type, **opts)
           end
 
-          define_helper_methods name
+          params[:discard_empty] ? schema.discarded!(name) : define_helper_methods(name)
         end
 
         %i(string integer float date time boolean).each do |m|
@@ -107,9 +115,8 @@ module Dry
         private
 
         def optionality params
-          nils, empty = params.delete(:nils), params.delete(:empty)
           # FIXME: Should we treat `empty?` in some specific way?
-          nils || empty ? :maybe : :filled
+          params.delete(:nils) || params.delete(:empty) || params[:discard_empty] ? :maybe : :filled
         end
 
         def define_helper_methods name

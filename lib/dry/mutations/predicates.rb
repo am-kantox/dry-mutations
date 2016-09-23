@@ -23,6 +23,10 @@ module Dry
                    end unless expected.is_a? Module
         current.is_a?(expected)
       end
+
+      predicate(:discard_empty) do |_expected, _current|
+        true
+      end
     end
   end
 end
