@@ -16,6 +16,7 @@ require 'dry/mutations/transactions'
 require 'dry/mutations/schema'
 
 require 'dry/mutations/globals'
+require 'dry/mutations/patches'
 
 module Dry
   # A dry implementation of mutations interface introduced by

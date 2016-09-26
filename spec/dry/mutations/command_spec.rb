@@ -229,7 +229,6 @@ describe Dry::Mutations::Extensions::Command do
     end
 
     it 'coerces input to be an integer' do
-      pending "For unknown reason it’s not working in the current implementation"
       expect(command.(input)).to be_success
       expect(command.(input).value[:amount]).to eq(42)
     end
@@ -243,11 +242,11 @@ describe Dry::Mutations::Extensions::Command do
   end
 
   context 'simple hash with nils not permitted' do
-    let!(:input) { default_input.merge(amount: nil) }
+    let!(:input) { default_input.merge(amount: :not_int) }
     it 'does not require optionals in input' do
       expect(output.run).not_to be_success
       expect(output.run.errors.size).to eq 1
-      expect(output.messages.map(&:text)).to match_array(["must be an integer"])
+      expect(output.messages.map(&:text)).to match_array(["must be Integer"])
     end
   end
 
@@ -257,7 +256,7 @@ describe Dry::Mutations::Extensions::Command do
       expect(output.run).not_to be_success
       expect(output.run.errors.size).to eq 3
       expect(output.messages.map(&:text)).to match_array(
-        ['size cannot be greater than 5', 'must be an integer', 'must be less than or equal to 100']
+        ['size cannot be greater than 5', 'must be Integer', 'must be less than or equal to 100']
       )
       expect { output.run! }.to raise_error(::Mutations::ValidationException)
     end
@@ -266,7 +265,6 @@ describe Dry::Mutations::Extensions::Command do
   context 'hash to be coerced' do
     let(:input) { default_input.merge age: '35' }
     it 'coerces the input properly' do
-      pending 'Relies on coercion in dry, NYI'
       expect(output.run).to be_success
     end
   end
@@ -290,7 +288,7 @@ describe Dry::Mutations::Extensions::Command do
     it 'strips input strings' do
       expect(output.run).not_to be_success
       expect(output.run.errors.symbolic).to eq(
-                          "arr_lvl_0_val.3" => :int?,
+                          "arr_lvl_0_val.3" => :type?,
         "hsh_lvl_0.hsh_lvl_1.hsh_lvl_2_val" => :in,
                   "hsh_lvl_0.hsh_lvl_1_val" => :min_length
       )
