@@ -13,3 +13,4 @@ gem 'dry-matcher', github: 'dry-rb/dry-matcher'
 gem 'dry-transaction', github: 'dry-rb/dry-transaction'
 
 gem 'codeclimate-test-reporter', group: :test, require: nil
+gem 'simplecov', group: :test, require: nil
