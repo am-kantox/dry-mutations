@@ -4,7 +4,7 @@ describe Dry::Mutations::Extensions::Command do
   let(:mixed_input) do
     {
       name: 'John',
-      amount: 42
+      amount: 3.14
     }
   end
 
@@ -17,7 +17,8 @@ describe Dry::Mutations::Extensions::Command do
       end
 
       schema do
-        required(:amount).filled(:int?, gt?: 0)
+        # required(:amount).filled(:int?, gt?: 0)
+        required(:amount).value(type?: Float)
       end
 
       def execute
@@ -40,12 +41,12 @@ describe Dry::Mutations::Extensions::Command do
   end
 
   context 'it rejects bad input' do
-    let(:mixed_input) { { name: 'Aleksei', amount: -42 } }
+    let(:mixed_input) { { name: 'Aleksei', amount: 42 } }
     it 'generates schema errors' do
       expect(output.run).not_to be_success
 
       expect(errors.keys).to match_array(%w(name amount))
-      expect(errors.values.map(&:dry_message).map(&:predicate)).to match_array(%i(gt? max_size?))
+      expect(errors.values.map(&:dry_message).map(&:predicate)).to match_array(%i(type? max_size?))
     end
   end
 end
