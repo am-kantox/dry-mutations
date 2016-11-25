@@ -65,7 +65,7 @@ describe Dry::Mutations::Extensions::Command do
         maturity_days_set: { days: 3 },
         maturity_date_set: { date: Date.today }
       },
-      expiration_date_set: { date: Date.today }, #Date.today.strftime },
+      expiration_date_set: { date: Date.today }, # Date.today.strftime },
       bank_set: {
         bank_reference: '',
         invoice_files: []
@@ -74,7 +74,7 @@ describe Dry::Mutations::Extensions::Command do
         currency: 'USD',
         counter_currency: 'JPY',
         amount: 123.456,
-        sell: true
+        sell: 'true'
       },
       external_ref: 'O-XXXXXXXXX',
       notes: '',
@@ -107,7 +107,11 @@ describe Dry::Mutations::Extensions::Command do
 
   let(:output) { mutation.new(input) }
   let(:expected) do
-    ::Dry::Mutations::Utils.Hash(input).merge(expiration_date_set: { date: Date.today })
+    ::Dry::Mutations::Utils.Hash(input).merge(
+      expiration_date_set: { date: Date.today }
+    ).tap do |res|
+      res[:currency_set][:sell] = true
+    end
   end
 
   let(:bad_output) { mutation.new(bad_input) }

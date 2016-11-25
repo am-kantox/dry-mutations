@@ -73,7 +73,7 @@ module Dry
         def vacant?(value)
           case value
           when NilClass then true
-          when Integer, Float then false # FIXME make sure!
+          when Integer, Float then false # FIXME: make sure!
           when ->(v) { v.respond_to? :empty? } then value.empty?
           when ->(v) { v.respond_to? :blank? } then value.blank?
           else false
@@ -81,7 +81,7 @@ module Dry
         end
 
         def discard_empty!
-          discarded = schema.discarded
+          discarded = schema.respond_to?(:discarded) ? schema.discarded : []
           schema.(
             ::Dry::Mutations::Utils.Hash(@raw_inputs.reject { |k, v| discarded.include?(k.to_sym) && vacant?(v) })
           )

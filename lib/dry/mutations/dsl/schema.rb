@@ -2,8 +2,8 @@ module Dry
   module Mutations
     module DSL # :nodoc:
       module Schema # :nodoc:
-        def schema input_processor: nil, **options, &block
-          @schema ||= derived_schema input_processor: input_processor, **options, &block
+        def schema schema = nil, input_processor: nil, **options, &block
+          @schema ||= schema || derived_schema(input_processor: input_processor, **options, &block)
           return @schema unless block_given?
 
           @schema = Validation.Schema(@schema, **@schema.options, &Proc.new)
