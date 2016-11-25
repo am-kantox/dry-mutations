@@ -3,7 +3,7 @@ module Dry
     module DSL # :nodoc:
       module Schema # :nodoc:
         def schema schema = nil, input_processor: nil, **options, &block
-          @schema ||= schema || derived_schema(input_processor: input_processor, **options, &block)
+          @schema ||= patched_schema(schema) || derived_schema(input_processor: input_processor, **options, &block)
           return @schema unless block_given?
 
           @schema = Validation.Schema(@schema, **@schema.options, &Proc.new)
@@ -23,6 +23,13 @@ module Dry
             Class.new(parent_with_schema.schema.class).new
           else
             ::Dry::Mutations.Schema(input_processor: input_processor, **options, &block)
+          end
+        end
+
+        def patched_schema(schema)
+          return nil unless schema.is_a?(::Dry::Validation::Schema)
+          schema.tap do |s|
+            s.config.instance_eval(&::Dry::Mutations::Schema::CONFIGURATOR)
           end
         end
       end

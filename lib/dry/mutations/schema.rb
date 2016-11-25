@@ -4,16 +4,17 @@ module Dry
       @@discarded = []
 
       MESSAGES_FILE = (::File.join __dir__, '..', '..', '..', 'config', 'messages.yml').freeze
-
-      configure do |config|
+      CONFIGURATOR = ->(config) do
         config.messages_file = MESSAGES_FILE
         config.hash_type = :symbolized
-        config.input_processor = :sanitizer
-
-        config.instance_variable_set :@discarded, []
-
-        predicates(::Dry::Mutations::Predicates)
+        config.input_processor = :sanitizer if config.input_processor == :noop
+        config.predicates = ::Dry::Mutations::Predicates
+        this = is_a?(::Dry::Validation::Schema) ? self : singleton_class
+        config.registry = ::Dry::Validation::PredicateRegistry[this, config.predicates]
       end
+
+      configure(&CONFIGURATOR)
+      # predicates(::Dry::Mutations::Predicates)
 
       def discarded
         @@discarded
