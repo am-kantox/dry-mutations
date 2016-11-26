@@ -162,7 +162,53 @@ required do
 end
 ```
 
-## Dealing `outcome`
+## Combining dry schemas with mutation-like syntax
+
+Since version `0.11.1`, one might pass the instance of `Dry::Validation::Schema`
+and/or `Dry::Validation::Form` instance to `schema` mutation DSL. Such a block
+might be _only one_, and it _must be_ the first DSL in the mutation:
+
+### Correct
+
+```ruby
+Class.new(::Mutations::Command) do
+  prepend ::Dry::Mutations::Extensions::Command
+  prepend ::Dry::Mutations::Extensions::Sieve
+
+  schema(::Dry::Validation.Form do
+    required(:integer_value).filled(:int?, gt?: 0)
+    required(:date_value).filled(:date?)
+    required(:bool_value).filled(:bool?)
+  end)
+
+  required do
+    integer :forty_two
+    string :hello
+  end
+end
+```
+
+### Incorrect
+
+```ruby
+Class.new(::Mutations::Command) do
+  prepend ::Dry::Mutations::Extensions::Command
+  prepend ::Dry::Mutations::Extensions::Sieve
+
+  required do
+    integer :forty_two
+    string :hello
+  end
+
+  schema(::Dry::Validation.Form do
+    required(:integer_value).filled(:int?, gt?: 0)
+    required(:date_value).filled(:date?)
+    required(:bool_value).filled(:bool?)
+  end)
+end
+```
+
+## Dealing with `outcome`
 
 ### Command
 
