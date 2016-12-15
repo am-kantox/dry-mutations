@@ -8,7 +8,8 @@ module Dry
       end
 
       predicate(:default?) do |_expected, _current|
-        fail Errors::TypeError, "“default” guard is not implemented yet in dry-mutations, sorry for that."
+        true
+        # fail Errors::TypeError, "“default” guard is not implemented yet in dry-mutations, sorry for that."
       end
 
       # FIXME: at the moment this is an exact equivalent of :type? => User

@@ -35,7 +35,7 @@ module Dry
         attr_reader :validation
 
         def initialize(*args)
-          @raw_inputs = Utils.RawInputs(*args)
+          @raw_inputs = defaults.merge Utils.RawInputs(*args)
 
           @validation_result = discard_empty!
 
@@ -129,6 +129,39 @@ module Dry
 
         def schema
           @schema ||= self.class.schema
+        end
+
+        def predicates(input, digged = [])
+          case input
+          when Dry::Logic::Rule::Predicate then digged << input
+          when Array then input.each { |e| predicates(e, digged) }
+          when ->(i) { i.respond_to?(:rules) }
+            predicates(input.rules, digged)
+          end
+          digged
+        end
+
+        def dig(predicate, input = schema)
+          case input.rules
+          when Hash # the whole schema
+            input.rules.map do |k, v|
+              pred = predicates(v).detect do |p|
+                p.respond_to?(:predicate) && (p = p.predicate).is_a?(Method) && "#{p.owner}##{p.name}" == predicate
+              end
+              pred ? [k, pred] : nil
+            end.compact.to_h
+          else
+            predicates(input).detect { |p| "#{p.owner}##{p.name}" == predicate }
+          end
+        end
+
+        def defaults
+          ::Dry::Mutations::Utils.Hash(
+            dig('#<Class:Dry::Mutations::Predicates>#default?').map do |k, v|
+              next unless v.respond_to?(:options) && v.options[:args]
+              [k, v.options[:args].first]
+            end.compact.to_h
+          )
         end
       end
     end

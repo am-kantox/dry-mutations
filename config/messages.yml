@@ -3,3 +3,4 @@ en:
     duck?: 'must respond to %{expected}'
     model?: 'must be a model (instance of %{expected})'
     discard_empty: 'aleksei’s too dumb error (%{expected},) you won :-P'
+    default?: 'default value implementation sucks'
