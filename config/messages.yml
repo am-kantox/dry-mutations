@@ -4,3 +4,4 @@ en:
     model?: 'must be a model (instance of %{expected})'
     discard_empty: 'aleksei’s too dumb error (%{expected},) you won :-P'
     default?: 'default value implementation sucks'
+    class: 'class guard for arrays implementation sucks'

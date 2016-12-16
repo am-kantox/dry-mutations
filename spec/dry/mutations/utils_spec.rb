@@ -28,6 +28,11 @@ describe Dry::Mutations::Utils do
       expect(Dry::Mutations::Utils.Snake('AaaBbb')).to eq('aaa_bbb')
       expect(Dry::Mutations::Utils.SnakeSafe('AaaBbb', %w(aaa_bbb))).to eq('aaa_bbb_1')
       expect(Dry::Mutations::Utils.SnakeSafe('AaaBbb', %w(aaa_bbb aaa_bbb_1 aaa_bbb_3))).to eq('aaa_bbb_2')
+      expect(Dry::Mutations::Utils.Camel('aaa_bbb')).to eq('AaaBbb')
+      expect(Dry::Mutations::Utils.Constant('string')).to eq(String)
+      expect(Dry::Mutations::Utils.Constant(:string)).to eq(String)
+      expect(Dry::Mutations::Utils.Constant(String)).to eq(String)
+      expect { Dry::Mutations::Utils.Constant(:strin) }.to raise_exception(NameError)
     end
   end
 end

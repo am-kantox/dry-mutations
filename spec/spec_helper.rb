@@ -3,5 +3,7 @@ require 'pry'
 
 require 'dry/mutations'
 
+class DummyTestClass; end
+
 require 'simplecov'
 SimpleCov.start

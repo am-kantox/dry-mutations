@@ -42,7 +42,13 @@ module Dry
                       Utils.Type err.type
                     end
 
-          name.nil? ? schema { each(nested) } : schema { __send__(current, name).each(nested) }
+          case
+          when !params[:class].nil? # cb.nil?
+            type = Utils.Type(params.delete(:class))
+            schema { Utils.smart_send(__send__(current, name), *(type ? [:each, type] : [:maybe])) }
+          when name.nil? then schema { each(nested) } # FIXME: CAN IT BE NIL?!
+          else schema { __send__(current, name).each(nested) }
+          end
 
           case
           when params[:discard_empty] then schema.discarded!(name)

@@ -1,6 +1,8 @@
+require 'dry-types'
 module Dry
   module Mutations
     module Utils # :nodoc:
+      DRY_TYPES = ::Dry::Types.type_keys.grep(/\A[^.]+\z/)
       DRY_TO_MUTATIONS = {
         min_size?:    :min_length,
         max_size?:    :max_length,
@@ -11,6 +13,11 @@ module Dry
         lteq?:        :max
       }.freeze
       MUTATIONS_TO_DRY = DRY_TO_MUTATIONS.invert.merge(default: :default?).freeze
+
+      ##########################################################################
+      COERCIBLE_STRING = ::Dry::Types::Constructor.new(
+        ::Dry::Types['strict.string'], fn: ->(v) { v.to_s.strip }
+      )
 
       def self.RawInputs *args
         args.inject(Utils.Hash({})) do |h, arg|
@@ -40,16 +47,14 @@ module Dry
       end
 
       def self.Type type, **params
-        case type.to_s
+        case Snake(type)
         when 'string'
           if Falsey?(params[:strip])
             :str?
           else
             # TODO: this silently coerces everything to be a string
             #       when `param[:strip]` is specified. This is likely OK, though.
-            ::Dry::Types::Constructor.new(
-              ::Dry::Types['strict.string'], fn: ->(v) { v.to_s.strip }
-            )
+            COERCIBLE_STRING
           end
         when 'date'
           ::Dry::Types::Constructor.new(
@@ -73,7 +78,8 @@ module Dry
               end
             end
           )
-        else :"#{type}?"
+        when -> (t) { DRY_TYPES.include?(t) } then :"#{type}?"
+        # else nil # implicit # FIXME: IS IT OK?
         end
       end
 

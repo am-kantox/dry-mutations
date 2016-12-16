@@ -28,6 +28,10 @@ module Dry
       predicate(:discard_empty) do |_expected, _current|
         true
       end
+
+      predicate(:class) do |_expected, _current|
+        true
+      end
     end
   end
 end
