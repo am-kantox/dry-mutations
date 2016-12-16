@@ -2,11 +2,23 @@ module Dry
   module Mutations
     module DSL # :nodoc:
       module Schema # :nodoc:
-        def schema schema = nil, input_processor: nil, **options, &block
-          @schema ||= patched_schema(schema) || derived_schema(input_processor: input_processor, **options, &block)
-          return @schema unless block_given?
+        def schema *args, input_processor: nil, **options, &block
+          case args.count
+          when 0, 1
+            schema, = args
+            @schema ||= patched_schema(schema) || derived_schema(input_processor: input_processor, **options, &block)
+            return @schema unless block_given?
 
-          @schema = Validation.Schema(@schema, **@schema.options, &Proc.new)
+            @schema = Validation.Schema(@schema, **@schema.options, &Proc.new)
+          when 2 # explicit dry schema given
+            name = args.first
+            current = @current # closure scope
+
+            schema do
+              Utils.smart_send(__send__(current, name), :schema, args.last, **options, &block)
+            end
+            define_method(name) { Utils::Hash(@inputs[name]) }
+          end
         end
 
         private

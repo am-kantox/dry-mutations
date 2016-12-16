@@ -53,7 +53,7 @@ end
 ```ruby
 class ComposedValidation < Mutations::Command
   prepend ::Dry::Mutations::Extensions::Command
-  prepend ::Dry::Mutations::Extensions::Dummy
+  prepend ::Dry::Mutations::Extensions::Sieve
 
   ...
   def validate
@@ -152,21 +152,37 @@ UserSchema = Dry::Validation.Schema do
 end
 ```
 
-or, in legacy `mutations` syntax (**NB! This is not yet implemented!**):
+or, in legacy `mutations` syntax (**NB! Starting with `0.99.9`!**):
 
 ```ruby
 required do
-  string :email
   string :name
   schema :address, AddressSchema
+  string :email
 end
 ```
 
 ## Combining dry schemas with mutation-like syntax
 
+Since version `0.99.9`, one might pass the `Dry::Validation::Schema` directly
+to legacy mutations syntax:
+
+```ruby
+required do
+  model :user
+  schema :address, AddressSchema # AddressSchema = ::Dry::Validation.Schema {}
+  date: Date.today
+end
+```
+
+---
+
 Since version `0.11.1`, one might pass the instance of `Dry::Validation::Schema`
-and/or `Dry::Validation::Form` instance to `schema` mutation DSL. Such a block
-might be _only one_, and it _must be_ the first DSL in the mutation:
+and/or `Dry::Validation::Form` instance to `schema` mutation DSL.
+
+Such a block might be _only one_, and it _must be_ the first DSL in the mutation.
+**NB** this is not a preferred way to do things, but it might be useful to _share_
+schemas (unlikely the above, this will _embed_ the schema, rather than _nest_ it.)
 
 ### Correct
 
