@@ -39,7 +39,7 @@ module Dry
 
           @validation_result = discard_empty!
 
-          @inputs = Utils.Hash @validation_result.output
+          @inputs = fix_accessors Utils.Hash @validation_result.output
 
           # dry: {:name=>["size cannot be greater than 10"],
           #       :properties=>{:first_arg=>["must be a string", "is in invalid format"]},
@@ -162,6 +162,24 @@ module Dry
               [k, v.options[:args].first]
             end.compact.to_h
           )
+        end
+
+        def fix_accessors hash
+          hash.each do |method, _|
+            next if respond_to?(name = method)
+
+            singleton_class.tap do |c|
+              c.send(:define_method, name) { @inputs[name] }
+              if c < Enumerable
+                c.send(:define_method, :"#{name}_present?") do
+                  @inputs.key?(name) && !@inputs[name].empty?
+                end
+              else
+                c.send(:define_method, :"#{name}_present?") { @inputs.key?(name) }
+                c.send(:define_method, :"#{name}=") { |value| @inputs[name] = value }
+              end
+            end
+          end
         end
       end
     end
