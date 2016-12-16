@@ -112,7 +112,7 @@ class MyMutation < Mutations::Command
       string :maturity_choice, in: %w(spot forward_days fixed_date)
       optional do
         hash :maturity_days_set do
-          integer :days # For spot or forward_days options
+          integer :days, default: 3 # For spot or forward_days options
         end
         hash :maturity_date_set do
           date :date # When passing a fixed date
@@ -283,6 +283,20 @@ That way _all_ mutations all over the system will be patched/injected with
 new functionality. This is untested in all possible environments.
 
 Bug reports are very welcome!
+
+## Changelog
+
+#### 0.99.1
+Support for direct input parameters invocation. 100%-compatibility with `mutations`:
+
+```ruby
+def validate # input ≡ { date: nil }
+  date < Date.now
+end
+```
+
+#### 0.99.0
+Support for `default:` guard. 99%-compatibility with `mutations`
 
 ## Development
 
