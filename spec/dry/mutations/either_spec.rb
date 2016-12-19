@@ -33,8 +33,8 @@ describe Dry::Mutations::Extensions::Command do
       expect(output).to be_is_a(::Mutations::Command)
       expect(right_outcome).to be_right
       expect(right_outcome.either.value).to eq(expected)
-      expect(right_outcome.match { |m| m.success(&:keys) }).to match_array(%w(amount name))
-      expect(right_outcome.match { |m| m.failure(&:keys) }).to be_nil
+      expect(right_outcome.match { |m| m.failure {}; m.success(&:keys) }).to match_array(%w(amount name))
+      expect(right_outcome.match { |m| m.success {}; m.failure(&:keys) }).to be_nil
     end
   end
 
@@ -44,10 +44,10 @@ describe Dry::Mutations::Extensions::Command do
       expect(output).to be_is_a(::Mutations::Command)
       expect(left_outcome).to be_left
       expect(left_outcome.either.value.keys).to match_array(%w(amount name))
-      expect(left_outcome.match { |m| m.failure(&:keys) }).to match_array(%w(amount name))
-      expect(left_outcome.match { |m| m.failure('amount', &:keys) }).to match_array(%w(amount name))
-      expect(left_outcome.match { |m| m.failure('non_existing', &:keys) }).to be_nil
-      expect(left_outcome.match { |m| m.success(&:keys) }).to be_nil
+      expect(left_outcome.match { |m| m.success {}; m.failure(&:keys) }).to match_array(%w(amount name))
+      expect(left_outcome.match { |m| m.success {}; m.failure('amount', &:keys) }).to match_array(%w(amount name))
+      expect(left_outcome.match { |m| m.success {}; m.failure('non_existing', &:keys) }).to be_nil
+      expect(left_outcome.match { |m| m.failure {}; m.success(&:keys) }).to be_nil
     end
   end
 

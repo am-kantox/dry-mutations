@@ -36,15 +36,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'mutations', '~> 0.8'
   spec.add_dependency 'hashie', '~> 3'
 
-  spec.add_dependency 'dry-validation', '~> 0.9'
-  spec.add_dependency 'dry-logic', '~> 0.3', '>= 0.3.0'
-  spec.add_dependency 'dry-core', '~> 0.1'
-  spec.add_dependency 'dry-struct', '~> 0'
-  spec.add_dependency 'dry-types', '~> 0.8', '>= 0.8.1'
-  spec.add_dependency 'dry-matcher', '~> 0.5'
-  spec.add_dependency 'dry-monads', '~> 0.1', '>= 0.1.1'
-  spec.add_dependency 'dry-transaction', '~> 0.8'
-  spec.add_dependency 'dry-configurable', '~> 0.1', '>= 0.1.3'
-  spec.add_dependency 'dry-container', '~> 0.2', '>= 0.2.8'
-  spec.add_dependency 'dry-equalizer', '~> 0.2'
+  spec.add_dependency 'dry-validation', '~> 0.10'
+  spec.add_dependency 'dry-transaction', '~> 0.9'
 end
