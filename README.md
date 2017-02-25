@@ -224,6 +224,34 @@ Class.new(::Mutations::Command) do
 end
 ```
 
+## Declare the resulting type of a schema
+
+Using the approach above, one might start with a schema type declaration:
+
+```ruby
+# this line must be a first declaration
+schema(::Dry::Validation.Form {})
+
+# now continue with generic `schema {}` blocks to append features:
+schema do
+  required(:integer_value).filled(:int?, gt?: 0)
+  required(:date_value).filled(:date?)
+  required(:bool_value).filled(:bool?)
+end
+```
+see [`schema_spec.rb`](https://github.com/am-kantox/dry-mutations/blob/master/spec/dry/mutations/schema_spec.rb)
+for an inspiration.
+
+### Subschema’s type
+
+Startign with `0.99.100` we accept `type:` parameter in call to `schema`:
+
+```ruby
+schema type: :form do
+  ...
+end
+```
+
 ## Dealing with `outcome`
 
 ### Command

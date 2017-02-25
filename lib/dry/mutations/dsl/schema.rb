@@ -2,11 +2,12 @@ module Dry
   module Mutations
     module DSL # :nodoc:
       module Schema # :nodoc:
-        def schema *args, input_processor: nil, **options, &block
+        def schema *args, input_processor: nil, type: :form, **options, &block
           case args.count
           when 0, 1
             schema, = args
-            @schema ||= patched_schema(schema) || derived_schema(input_processor: input_processor, **options, &block)
+            @schema ||= patched_schema(schema) \
+                    || derived_schema(input_processor: input_processor, type: type, **options, &block)
             return @schema unless block_given?
 
             @schema = Validation.Schema(@schema, **@schema.options, &Proc.new)
@@ -23,7 +24,7 @@ module Dry
 
         private
 
-        def derived_schema input_processor: nil, **options, &block
+        def derived_schema input_processor:, type:, **options, &block
           this = is_a?(Class) ? self : self.class
 
           parent_with_schema = this.ancestors.drop(1).detect do |klazz|
@@ -34,7 +35,7 @@ module Dry
           if parent_with_schema
             Class.new(parent_with_schema.schema.class).new
           else
-            ::Dry::Mutations.Schema(input_processor: input_processor, **options, &block)
+            ::Dry::Mutations.Schema(input_processor: input_processor, type: type, **options, &block)
           end
         end
 

@@ -33,8 +33,10 @@ module Dry
       end
     end
 
-    def self.Schema(input_processor: nil, **options, &block)
-      ::Dry::Validation.Schema(::Dry::Mutations::Schema, **options) do
+    def self.Schema(input_processor: nil, type: :schema, **options, &block)
+      type = :schema unless type && ::Dry::Mutations.const_defined?(type.to_s.capitalize)
+      parent = ::Dry::Mutations.const_get(type.to_s.capitalize)
+      ::Dry::Validation.Schema(parent, **options) do
         configure { config.input_processor = input_processor } if input_processor
         instance_exec(&block) if block
       end
