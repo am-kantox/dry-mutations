@@ -17,7 +17,7 @@ module Dry
           end
 
           def call(step, *args, input)
-            step.operation.(input, *args)
+            step.operation.(input, *args, &step.block)
           end
         end
 

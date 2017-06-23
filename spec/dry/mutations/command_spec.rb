@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+# rubocop:disable Metrics/BlockLength
 describe Dry::Mutations::Extensions::Command do
   let(:default_input) do
     {
@@ -309,12 +310,8 @@ describe Dry::Mutations::Extensions::Command do
       end
     end
     it 'handles exceptions' do
-      expect { command.run(amount: 5) }.not_to raise_exception
-      expect { command.run(amount: 0) }.not_to raise_exception
-
-      expect(command.run(amount: 0)).not_to be_success
-      expect(command.run(amount: 0).errors.symbolic).to eq('♻' => :runtime_exception)
-      expect(command.run(amount: 0).errors.message).to eq('♻' => 'divided by 0')
+      expect { command.run(amount: 5) }.to raise_exception(ZeroDivisionError)
+      expect { command.run(amount: 0) }.to raise_exception(ZeroDivisionError)
     end
   end
 
@@ -377,4 +374,24 @@ describe Dry::Mutations::Extensions::Command do
       expect(MyMutationsCommand(name: 'John').value).to eq(::Dry::Mutations::Utils.Hash(name: 'John'))
     end
   end
+
+  context 'methods for all optional arguments' do
+    mutation = Class.new(::Mutations::Command) do
+      prepend ::Dry::Mutations::Extensions::Command
+
+      schema(::Dry::Validation.Form do
+        required(:name).filled(:str?, max_size?: 5)
+        optional(:age).filled(:int?)
+      end)
+
+      def execute
+        { name: name, age: age }
+      end
+    end
+
+    it 'processes the input properly' do
+      expect(mutation.run!(name: 'John')).to eq(name: 'John', age: nil)
+    end
+  end
 end
+# rubocop:enable Metrics/BlockLength

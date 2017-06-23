@@ -35,11 +35,11 @@ module Dry
         attr_reader :validation
 
         def initialize(*args)
-          @raw_inputs = defaults.merge Utils.RawInputs(*args)
-
+          @raw_inputs = defaults.merge(Utils.RawInputs(*args))
           @validation_result = discard_empty!
+          @inputs = Utils.Hash @validation_result.output
 
-          @inputs = fix_accessors Utils.Hash @validation_result.output
+          fix_accessors!
 
           # dry: {:name=>["size cannot be greater than 10"],
           #       :properties=>{:first_arg=>["must be a string", "is in invalid format"]},
@@ -99,6 +99,7 @@ module Dry
           super
         rescue => e
           add_error(:♻, :runtime_exception, e.message)
+          raise e
         end
 
         def add_error(key, kind, message = nil, dry_message = nil)
@@ -110,7 +111,7 @@ module Dry
           #            path=[:maturity_set, :maturity_days_set, :days],
           #            text=\"must be an integer\",
           #            options={:args=>[], :rule=>:days, :each=>false}>"
-          dry_message ||= ::Dry::Validation::Message.new(kind, *path.map(&:to_sym), message, rule: :♻)
+          dry_message ||= ::Dry::Validation::Message.new(kind, key, message, rule: :♻)
           atom = Errors::ErrorAtom.new(key, kind, dry_message, message: message)
 
           last = path.pop
@@ -169,8 +170,8 @@ module Dry
           )
         end
 
-        def fix_accessors hash
-          hash.each do |method, _|
+        def fix_accessors!
+          schema.rules.keys.each do |method|
             next if respond_to?(name = method)
 
             singleton_class.tap do |c|
