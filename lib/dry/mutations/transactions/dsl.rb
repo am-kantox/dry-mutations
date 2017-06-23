@@ -31,7 +31,10 @@ module Dry
           # rubocop:disable Style/VariableNumber
           λ = Proc.new
 
-          @transaction = ::Dry.Transaction(container: ::Dry::Mutations::Transactions::Container, step_adapters: StepAdapters) do
+          @transaction = ::Dry.Transaction(
+            container: ::Dry::Mutations::Transactions::Container,
+            step_adapters: StepAdapters
+          ) do
             instance_eval(&λ)
           end.tap do |transaction|
             singleton_class.send :define_method, :call do |*input|

@@ -91,6 +91,36 @@ describe Dry::Mutations::Transactions do
     end
   end
 
+  context 'nested chains work' do
+    let(:result) do
+      c1 = command1
+      c2 = command2
+      c3 = command3
+
+      child = Class.new do
+        extend ::Dry::Mutations::Transactions::DSL
+        chain { validate c2 }
+      end
+
+      Class.new do
+        extend ::Dry::Mutations::Transactions::DSL
+
+        # We need inplace blocks to create chains.
+        #   It makes sense mostly for `tee` and `try`
+        chain do
+          tranquilo c1
+          chain child
+          chain do
+            validate c3
+          end
+        end
+      end
+    end
+    it 'processes the input properly' do
+      expect(result.(input)).to eq(::Dry::Monads::Right(Hashie::Mash.new(amount: 42, name: "John Donne")))
+    end
+  end
+
   context 'it returns Left on error' do
     let(:result) do
       c1 = command1
