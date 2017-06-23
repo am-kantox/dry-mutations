@@ -77,7 +77,7 @@ describe Dry::Mutations::Transactions do
         #   It makes sense mostly for `tee` and `try`
         chain do
           transform c1
-          validate c0
+          try c0, catch: StandardError
           transform c3
         end
       end

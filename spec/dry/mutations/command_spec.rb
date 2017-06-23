@@ -309,12 +309,8 @@ describe Dry::Mutations::Extensions::Command do
       end
     end
     it 'handles exceptions' do
-      expect { command.run(amount: 5) }.not_to raise_exception
-      expect { command.run(amount: 0) }.not_to raise_exception
-
-      expect(command.run(amount: 0)).not_to be_success
-      expect(command.run(amount: 0).errors.symbolic).to eq('♻' => :runtime_exception)
-      expect(command.run(amount: 0).errors.message).to eq('♻' => 'divided by 0')
+      expect { command.run(amount: 5) }.to raise_exception(ZeroDivisionError)
+      expect { command.run(amount: 0) }.to raise_exception(ZeroDivisionError)
     end
   end
 

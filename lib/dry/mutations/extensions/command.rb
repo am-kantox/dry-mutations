@@ -99,6 +99,7 @@ module Dry
           super
         rescue => e
           add_error(:♻, :runtime_exception, e.message)
+          raise e
         end
 
         def add_error(key, kind, message = nil, dry_message = nil)
