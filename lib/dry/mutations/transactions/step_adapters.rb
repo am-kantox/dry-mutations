@@ -1,3 +1,5 @@
+require 'active_support'
+
 module Dry
   module Mutations
     module Transactions # :nodoc:
@@ -17,7 +19,7 @@ module Dry
           end
 
           def call(step, *args, input)
-            step.operation.(input, *args, &step.block)
+            step.operation.(input, *args)
           end
         end
 

@@ -5,6 +5,8 @@ require 'dry-transaction'
 require 'dry-matcher'
 require 'dry-monads'
 
+require 'dry/mutations/monkeypatches'
+
 require 'dry/mutations/version'
 require 'dry/mutations/utils'
 require 'dry/mutations/monkeypatches'

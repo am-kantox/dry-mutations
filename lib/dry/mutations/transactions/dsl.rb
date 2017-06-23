@@ -36,8 +36,8 @@ module Dry
               container: ::Dry::Mutations::Transactions::Container,
               step_adapters: StepAdapters
             )
-            class_eval(&λ) if λ
-            # instance_eval(&λ) if λ
+            # class_eval(&λ) if λ
+            module_eval(&λ) if λ
           end.new.tap do |transaction|
             singleton_class.send :define_method, :call do |*input|
               transaction.(Utils.RawInputs(*input))
