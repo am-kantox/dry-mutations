@@ -31,6 +31,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3'
   spec.add_development_dependency 'pry', '~> 0.10'
   spec.add_development_dependency 'awesome_print'
+  spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'activerecord', '< 5', '>= 3.2'  # prevent mutations to require activerecord 5
 
   spec.add_dependency 'activesupport', '< 5', '>= 3.2' # prevent mutations to require activesupport 5
   spec.add_dependency 'mutations', '~> 0.8'

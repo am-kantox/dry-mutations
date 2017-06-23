@@ -3,6 +3,17 @@ module Dry
     module Predicates # :nodoc:
       include ::Dry::Logic::Predicates
 
+      RAILS_4_RELATION = 'ActiveRecord_Associations_CollectionProxy'.freeze
+
+      predicate(:relation?) do |expected, current|
+        if expected.const_defined?(RAILS_4_RELATION)
+          current.is_a?(expected.const_get(RAILS_4_RELATION))
+        else
+          # Gracefull fallback for Rails3
+          current.is_a?(ActiveRecord::Relation) && current.name == expected.name
+        end
+      end
+
       predicate(:duck?) do |expected, current|
         expected.empty? || expected.all?(&current.method(:respond_to?))
       end

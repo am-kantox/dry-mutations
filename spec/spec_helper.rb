@@ -2,6 +2,7 @@ $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'pry'
 
 require 'dry/mutations'
+require_relative 'spec_sqlite_helper'
 
 class DummyTestClass; end
 

@@ -14,7 +14,6 @@ module Dry
       end
 
       configure(&CONFIGURATOR)
-      # predicates(::Dry::Mutations::Predicates)
 
       def discarded
         @@discarded

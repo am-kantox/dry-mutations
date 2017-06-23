@@ -78,8 +78,8 @@ module Dry
               end
             end
           )
-        when -> (t) { DRY_TYPES.include?(t) } then :"#{type}?"
-        # else nil # implicit # FIXME: IS IT OK?
+        when ->(t) { DRY_TYPES.include?(t) } then :"#{type}?"
+          # else type implicitly return `nil` here TODO
         end
       end
 

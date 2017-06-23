@@ -2,6 +2,7 @@ en:
   errors:
     duck?: 'must respond to %{expected}'
     model?: 'must be a model (instance of %{expected})'
+    relation?: 'must be a relation (many instances of %{expected})'
     discard_empty: 'aleksei’s too dumb error (%{expected},) you won :-P'
     default?: 'default value implementation sucks'
     class: 'class guard for arrays implementation sucks'

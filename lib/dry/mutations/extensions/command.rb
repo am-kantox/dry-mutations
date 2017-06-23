@@ -27,7 +27,7 @@ module Dry
 
           base.singleton_class.prepend(Module.new do
             def respond_to_missing?(method_name, include_private = false)
-              [:call, :to_proc].include?(method_name) || super
+              %i|call to_proc|.include?(method_name) || super
             end
           end)
         end
@@ -134,26 +134,31 @@ module Dry
         def predicates(input, digged = [])
           case input
           when Dry::Logic::Rule::Predicate then digged << input
-          when Array then input.each { |e| predicates(e, digged) }
-          when ->(i) { i.respond_to?(:rules) }
-            predicates(input.rules, digged)
+          when Array, ActiveRecord::Relation then input.each { |e| predicates(e, digged) }
+          when ->(i) { i.respond_to?(:rules) } then predicates(input.rules, digged)
           end
           digged
         end
 
+        # rubocop:disable Style/YodaCondition
         def dig(predicate, input = schema)
           case input.rules
           when Hash # the whole schema
             input.rules.map do |k, v|
               pred = predicates(v).detect do |p|
-                p.respond_to?(:predicate) && (p = p.predicate).is_a?(Method) && "#{p.owner}##{p.name}" == predicate
+                p.respond_to?(:predicate) &&
+                  (p = p.predicate).is_a?(Method) &&
+                  "#{p.owner}##{p.name}" == predicate
               end
               pred ? [k, pred] : nil
             end.compact.to_h
           else
-            predicates(input).detect { |p| "#{p.owner}##{p.name}" == predicate }
+            predicates(input).detect do |p|
+              "#{p.owner}##{p.name}" == predicate
+            end
           end
         end
+        # rubocop:enable Style/YodaCondition
 
         def defaults
           ::Dry::Mutations::Utils.Hash(

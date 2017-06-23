@@ -19,15 +19,27 @@ Metrics/PerceivedComplexity:
 Metrics/AbcSize:
   Max: 42
 
+Metrics/ModuleLength:
+  Max: 256
+
+Metrics/BlockLength:
+  Max: 64
+
+################################################################################
+
+Lint/EmptyWhen:
+  Enabled: false
+
 ################################################################################
 
 Style/SignalException:
   EnforcedStyle: semantic
 
+Style/PercentLiteralDelimiters:
+  Enabled: false
+
 Style/MethodName:
-  Exclude:
-    - 'lib/dry/mutations/utils.rb'
-    - 'lib/dry/transactions/*.rb'
+  Enabled: false
 
 Style/VariableName:
   SupportedStyles: snake_case

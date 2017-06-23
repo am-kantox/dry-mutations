@@ -162,6 +162,15 @@ required do
 end
 ```
 
+## `ActiveRecord::Relation` support
+
+
+```ruby
+schema(Dry::Mutations.Schema do
+  required(:slaves).filled(relation?: Slave)
+end)
+```
+
 ## Combining dry schemas with mutation-like syntax
 
 Since version `0.99.9`, one might pass the `Dry::Validation::Schema` directly
