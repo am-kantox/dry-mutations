@@ -39,5 +39,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'hashie', '~> 3'
 
   spec.add_dependency 'dry-validation', '~> 0.10'
-  spec.add_dependency 'dry-transaction', '~> 0.9'
+  spec.add_dependency 'dry-transaction', '~> 0.9', '< 0.10'
 end
