@@ -1,7 +1,9 @@
 require 'spec_helper'
 
+# rubocop:disable Metrics/BlockLength
 describe Dry::Mutations::Transactions do
-  let(:input)    { { name: 'John' } }
+  let(:input) { { name: 'John' } }
+  let(:input2) { { age: 42 } }
   let(:expected) { { name: 'John Donne', value: 42 } }
 
   let!(:command1) do
@@ -31,6 +33,9 @@ describe Dry::Mutations::Transactions do
       required do
         string :name, max_length: 10
         integer :amount, max: 42
+      end
+      optional do
+        integer :age
       end
     end
   end
@@ -63,6 +68,27 @@ describe Dry::Mutations::Transactions do
     it 'processes the input properly' do
       expect(result.(input)).to eq(::Dry::Monads::Right(Hashie::Mash.new(amount: 42, name: "John Donne")))
     end
+    context 'many hashes' do
+      let(:command2) do
+        Class.new(::Mutations::Command) do
+          prepend ::Dry::Mutations::Extensions::Command
+          required do
+            string :name, max_length: 10
+            integer :age, min: 41
+          end
+
+          def execute
+            @inputs.merge(amount: 42)
+          end
+        end
+      end
+
+      it 'accepts many hashes for the input' do
+        expect(result.(input, input2)).to eq(
+          ::Dry::Monads::Right(Hashie::Mash.new(age: 42, amount: 42, name: "John Donne"))
+        )
+      end
+    end
   end
 
   context 'it returns Left on error' do
@@ -87,3 +113,4 @@ describe Dry::Mutations::Transactions do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength
