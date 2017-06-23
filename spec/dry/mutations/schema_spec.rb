@@ -28,11 +28,13 @@ describe Dry::Mutations::Extensions::Command do
   end
 
   context 'coercion is silently done' do
-    let(:input) { {
-      hello: :world, forty_two: '42',
-      integer_value: '42', date_value: '2016-01-01', bool_value: 'true',
-      integer_value_nc: '42', date_value_nc: '2016-01-01', bool_value_nc: 'true'
-    } }
+    let(:input) do
+      {
+        hello: :world, forty_two: '42',
+        integer_value: '42', date_value: '2016-01-01', bool_value: 'true',
+        integer_value_nc: '42', date_value_nc: '2016-01-01', bool_value_nc: 'true'
+      }
+    end
     let(:output) { command.new(input) }
     let(:expected) do
       ::Dry::Mutations::Utils.Hash(

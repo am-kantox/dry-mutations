@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+# rubocop:disable Metrics/BlockLength
 describe Dry::Mutations::Extensions::Command do
   let(:default_input) do
     {
@@ -373,4 +374,24 @@ describe Dry::Mutations::Extensions::Command do
       expect(MyMutationsCommand(name: 'John').value).to eq(::Dry::Mutations::Utils.Hash(name: 'John'))
     end
   end
+
+  context 'methods for all optional arguments' do
+    mutation = Class.new(::Mutations::Command) do
+      prepend ::Dry::Mutations::Extensions::Command
+
+      schema(::Dry::Validation.Form do
+        required(:name).filled(:str?, max_size?: 5)
+        optional(:age).filled(:int?)
+      end)
+
+      def execute
+        { name: name, age: age }
+      end
+    end
+
+    it 'processes the input properly' do
+      expect(mutation.run!(name: 'John')).to eq(name: 'John', age: nil)
+    end
+  end
 end
+# rubocop:enable Metrics/BlockLength
