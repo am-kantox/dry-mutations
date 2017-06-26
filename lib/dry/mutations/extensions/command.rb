@@ -117,16 +117,28 @@ module Dry
 
           (@errors ||= ::Mutations::ErrorHash.new).tap do |errs|
             path.inject(errs) do |cur_errors, part|
-              cur_errors[part.to_sym] ||= ::Mutations::ErrorHash.new
+              cur_errors[part.to_s] ||= ::Mutations::ErrorHash.new
             end[last] = atom
-          end
+          end[key] = Errors::ErrorAtom.new(key, kind, dry_message, message: message)
         end
 
         def messages
-          @messages ||= @errors && @errors.values.map(&:dry_message)
+          @messages ||= yield_messages.uniq
         end
 
         private
+
+        def yield_messages(flat = [], errors = @errors)
+          return flat unless errors
+          errors = errors.values if errors.is_a?(Hash)
+          errors.each_with_object(flat) do |error, acc|
+            case error
+            when ::Mutations::ErrorHash, ::Mutations::ErrorArray then yield_messages(acc, error)
+            when ::Dry::Mutations::Errors::ErrorAtom then acc << error.dry_message
+            when ::Mutations::ErrorAtom then acc << error.message
+            end
+          end
+        end
 
         def schema
           @schema ||= self.class.schema

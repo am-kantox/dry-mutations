@@ -291,7 +291,11 @@ describe Dry::Mutations::Extensions::Command do
       expect(output.run.errors.symbolic).to eq(
                           "arr_lvl_0_val.3" => :type?,
         "hsh_lvl_0.hsh_lvl_1.hsh_lvl_2_val" => :in,
-                  "hsh_lvl_0.hsh_lvl_1_val" => :min_length
+                  "hsh_lvl_0.hsh_lvl_1_val" => :min_length,
+                            "arr_lvl_0_val" => { "3" => [:type?] },
+                                "hsh_lvl_0" => { "hsh_lvl_1_val" => [:min_length],
+                                                     "hsh_lvl_1" => { "hsh_lvl_2_val" => [:in] } }
+
       )
     end
   end

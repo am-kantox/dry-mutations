@@ -95,7 +95,7 @@ describe Dry::Mutations::Extensions::Command do
     let(:command) { dry_mixed_schema }
     it 'rejects the input properly' do
       expect(output.run).to_not be_success
-      expect(errors.keys).to match_array(%w|user.name pi|)
+      expect(errors.keys).to match_array(%w|user.name pi user|)
     end
   end
 end

@@ -9,12 +9,14 @@ module Dry
 
           attr_reader :outcome, :either
 
+          # rubocop:disable Style/VariableNumber
           def initialize(outcome)
             @∨ = outcome.class.instance_variable_get(:@∨)
             @either = Right(@outcome = outcome).bind do |value|
               value.public_send(@∨[:success]) ? Right(value.public_send(@∨[:right])) : Left(value.public_send(@∨[:left]))
             end
           end
+          # rubocop:enable Style/VariableNumber
         end
 
         class Matcher # :nodoc:
@@ -23,14 +25,12 @@ module Dry
             resolve: ->(value) { value.either.value }
           )
 
-          # rubocop:disable Style/BlockDelimiters
           FAILURE = Dry::Matcher::Case.new(
-            match: -> (value, *patterns) {
+            match: ->(value, *patterns) {
               value.left? && (patterns.none? || (patterns & value.either.value.keys).any?)
             },
-            resolve: -> (value) { value.either.value }
+            resolve: ->(value) { value.either.value }
           )
-          # rubocop:enable Style/BlockDelimiters
 
           # Build the matcher
           def self.!
@@ -41,15 +41,17 @@ module Dry
           private_constant :FAILURE
         end
 
+        # rubocop:disable Style/VariableNumber
         def self.prepended base
           λ = base.instance_methods.method(:include?)
           base.instance_variable_set(:@∨, {
-            left:    [:errors, :left].detect(&λ),
-            right:   [:result, :output, :right].detect(&λ),
-            success: [:success?].detect(&λ)
+            left:    %i|errors left|.detect(&λ),
+            right:   %i|result output right|.detect(&λ),
+            success: %i|success?|.detect(&λ)
           }.reject { |_, v| v.nil? }.merge(base.instance_variable_get(:@∨) || {}))
           fail ArgumentError, "Can not have #{self} #{__callee__} to #{base}: base class must look like an either." unless base.instance_variable_get(:@∨).size == 3
         end
+        # rubocop:enable Style/VariableNumber
         singleton_class.send :alias_method, :included, :prepended
 
         def either
@@ -74,7 +76,6 @@ module Dry
         end
       end
 
-      # rubocop:disable Style/MethodName
       def self.Either input
         case input
         when Class then input.prepend Either unless input.ancestors.include?(Either)
@@ -104,7 +105,6 @@ module Dry
           fail ::Mutations::ValidationException.new(outcome.errors) unless outcome.success?
         end.value
       end
-      # rubocop:enable Style/MethodName
     end
   end
 end

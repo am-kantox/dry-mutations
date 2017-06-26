@@ -35,7 +35,6 @@ describe Dry::Mutations::Extensions::Command do
         id: 1, properties: { name: 'Aleksei', age: 43 }
       )
     end
-
     it 'processes the input properly' do
       expect(output).to be_is_a(::Mutations::Command)
       expect(output.run).to be_success
@@ -48,13 +47,12 @@ describe Dry::Mutations::Extensions::Command do
       { id: 1, properties: { name: '', age: 43 } }
     end
     let(:output) { command.new(input) }
-
     it 'processes the input properly' do
       expect(output).to be_is_a(::Mutations::Command)
       expect(output.run).not_to be_success
       expect(output.run.errors).to be_is_a(Hash)
-      expect(output.run.errors[:properties]).to be_is_a(Hash)
-      expect(output.run.errors[:properties][:name].last.text).to eq("size cannot be less than 3")
+      expect(output.run.errors["properties"]).to be_is_a(Hash)
+      expect(output.run.errors["properties"]["name"].last.text).to eq("size cannot be less than 3")
     end
   end
 
@@ -68,13 +66,11 @@ describe Dry::Mutations::Extensions::Command do
         properties: { name: 'must be string' }
       )
     end
-
     it 'processes the input properly' do
       expect(output).to be_is_a(::Mutations::Command)
       expect(output.run).not_to be_success
       expect(output.run.errors).to be_is_a(Hash)
-      expect(output.run.errors[:properties]).to be_is_a(Hash)
-      expect(output.run.errors[:properties]["name"].text).to eq("Must be cool")
+      expect(output.run.errors["properties"]["name"].text).to eq("Must be cool")
     end
   end
 end

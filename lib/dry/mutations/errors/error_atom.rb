@@ -21,11 +21,17 @@ module Dry
           fail TypeError, "Expected: ::Dry::Validation::MessageSet; got: #{set.class}" unless set.is_a?(::Dry::Validation::MessageSet)
 
           set.map.with_index.with_object(::Mutations::ErrorHash.new) do |(msg, idx), memo|
-            # key = msg.path.join('.')
+            key = msg.path.join('.')
             last = msg.path.pop
-            (msg.path.inject(memo) { |acc, curr| acc[curr] ||= Hashie::Mash.new }[last] ||= []) << \
-              new(last, msg.predicate, msg, message: msg.text, index: idx)
-            # memo[key] = new(key, msg.predicate, msg, message: msg.text, index: idx)
+            tail = msg.path.inject(memo) { |acc, curr| acc[curr.to_s] ||= ::Mutations::ErrorHash.new }
+            tail[last.to_s] = case tail[last.to_s]
+                              when ErrorAtom then ::Mutations::ErrorArray.new << tail[last.to_s]
+                              when NilClass then ::Mutations::ErrorArray.new
+                              when ::Mutations::ErrorArray then tail[last.to_s]
+                              end
+
+            tail[last.to_s] << new(last, msg.predicate, msg, message: msg.text, index: idx)
+            memo[key] = new(key, msg.predicate, msg, message: msg.text, index: idx)
           end
         end
       end

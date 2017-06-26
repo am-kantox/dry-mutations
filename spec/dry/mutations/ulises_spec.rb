@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+# rubocop:disable Metrics/BlockLength
 describe Dry::Mutations::Extensions::Command do
   class Profile
   end
@@ -151,3 +152,4 @@ describe Dry::Mutations::Extensions::Command do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength
