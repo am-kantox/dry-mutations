@@ -19,9 +19,13 @@ module Dry
           return nil if set.empty?
 
           fail TypeError, "Expected: ::Dry::Validation::MessageSet; got: #{set.class}" unless set.is_a?(::Dry::Validation::MessageSet)
+
           set.map.with_index.with_object(::Mutations::ErrorHash.new) do |(msg, idx), memo|
-            key = msg.path.join('.')
-            memo[key] = new(key, msg.predicate, msg, message: msg.text, index: idx)
+            # key = msg.path.join('.')
+            last = msg.path.pop
+            (msg.path.inject(memo) { |acc, curr| acc[curr] ||= Hashie::Mash.new }[last] ||= []) << \
+              new(last, msg.predicate, msg, message: msg.text, index: idx)
+            # memo[key] = new(key, msg.predicate, msg, message: msg.text, index: idx)
           end
         end
       end
