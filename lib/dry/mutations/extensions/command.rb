@@ -111,10 +111,10 @@ module Dry
           #            path=[:maturity_set, :maturity_days_set, :days],
           #            text=\"must be an integer\",
           #            options={:args=>[], :rule=>:days, :each=>false}>"
-          dry_message ||= ::Dry::Validation::Message.new(kind, key, message, rule: :♻)
-          atom = Errors::ErrorAtom.new(key, kind, dry_message, message: message)
-
           last = path.pop
+          dry_message ||= ::Dry::Validation::Message.new(kind, last, message, rule: :♻)
+          atom = Errors::ErrorAtom.new(last, kind, dry_message, message: message)
+
           (@errors ||= ::Mutations::ErrorHash.new).tap do |errs|
             path.inject(errs) do |cur_errors, part|
               cur_errors[part.to_sym] ||= ::Mutations::ErrorHash.new

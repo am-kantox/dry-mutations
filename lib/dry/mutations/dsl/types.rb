@@ -20,7 +20,9 @@ module Dry
         ########################################################################
 
         # FIXME: errors in double+ nested hashes are not nested! dry-rb glitch?
-        def hash name, **params, &cb
+        def hash name = nil, **params, &cb
+          return super() if name.nil? # HACK: for method name collision
+
           current = @current # closure scope
 
           schema { __send__(current, name).schema(Nested.!(current, &cb)) }
@@ -126,11 +128,13 @@ module Dry
         end
 
         def define_helper_methods name
+          # rubocop:disable Style/GuardClause
           unless Nested === self
             define_method(name) { @inputs[name] }
             define_method(:"#{name}_present?") { @inputs.key?(name) }
             define_method(:"#{name}=") { |value| @inputs[name] = value }
           end
+          # rubocop:enable Style/GuardClause
         end
       end
     end
