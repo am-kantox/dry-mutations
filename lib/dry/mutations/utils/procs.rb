@@ -14,9 +14,9 @@ module Dry
       #   TODO: Make it possible to choose friendly hash implementation
       USE_HASHIE_MASH = Falsey?(ENV['PLAIN_HASHES'], explicit: false) && begin
         require 'hashie/mash'
-        require 'hashie/extensions/dash'
+        require 'hashie/dash'
         require 'hashie/extensions/indifferent_access'
-        ::Mutations::ErrorHash.include Hashie::Extensions::IndifferentAccess
+        ::Mutations::ErrorHash.prepend Hashie::Extensions::IndifferentAccess
         true
       rescue LoadError => e
         $stderr.puts [
