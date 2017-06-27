@@ -119,7 +119,7 @@ module Dry
             path.inject(errs) do |cur_errors, part|
               cur_errors[part.to_s] ||= ::Mutations::ErrorHash.new
             end[last] = atom
-          end[key] = Errors::ErrorAtom.new(key, kind, dry_message, message: message)
+          end # [key] = Errors::ErrorAtom.new(key, kind, dry_message, message: message)
         end
 
         def messages

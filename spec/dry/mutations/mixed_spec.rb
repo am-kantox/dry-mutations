@@ -59,7 +59,7 @@ describe Dry::Mutations::Extensions::Command do
       expect(output.run).not_to be_success
 
       expect(errors.keys).to match_array(%w(name amount1 amount2))
-      expect(errors.values.map(&:dry_message).map(&:predicate)).to match_array(%i(type? max_size? model?))
+      expect(errors.values.flatten.map(&:dry_message).map(&:predicate)).to match_array(%i(type? max_size? model?))
     end
   end
 
@@ -95,7 +95,7 @@ describe Dry::Mutations::Extensions::Command do
     let(:command) { dry_mixed_schema }
     it 'rejects the input properly' do
       expect(output.run).to_not be_success
-      expect(errors.keys).to match_array(%w|user.name pi user|)
+      expect(errors.keys).to match_array(%w|pi user|)
     end
   end
 end

@@ -257,7 +257,10 @@ describe Dry::Mutations::Extensions::Command do
       expect(output.run).not_to be_success
       expect(output.run.errors.size).to eq 3
       expect(output.messages.map(&:text)).to match_array(
-        ['size cannot be greater than 5', 'must be Integer', 'must be less than or equal to 100']
+        ['size cannot be greater than 5',
+         'must be Integer',
+         'must be greater than or equal to 10',
+         'must be less than or equal to 100']
       )
       expect { output.run! }.to raise_error(::Mutations::ValidationException)
     end
@@ -289,9 +292,6 @@ describe Dry::Mutations::Extensions::Command do
     it 'strips input strings' do
       expect(output.run).not_to be_success
       expect(output.run.errors.symbolic).to eq(
-                          "arr_lvl_0_val.3" => :type?,
-        "hsh_lvl_0.hsh_lvl_1.hsh_lvl_2_val" => :in,
-                  "hsh_lvl_0.hsh_lvl_1_val" => :min_length,
                             "arr_lvl_0_val" => { "3" => [:type?] },
                                 "hsh_lvl_0" => { "hsh_lvl_1_val" => [:min_length],
                                                      "hsh_lvl_1" => { "hsh_lvl_2_val" => [:in] } }
