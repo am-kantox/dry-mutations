@@ -15,8 +15,9 @@ module Dry
       USE_HASHIE_MASH = Falsey?(ENV['PLAIN_HASHES'], explicit: false) && begin
         require 'hashie/mash'
         require 'hashie/dash'
+        require 'hashie/extensions/dash/indifferent_access'
         require 'hashie/extensions/indifferent_access'
-        ::Mutations::ErrorHash.prepend Hashie::Extensions::IndifferentAccess
+        ::Mutations::ErrorHash.include Hashie::Extensions::IndifferentAccess
         true
       rescue LoadError => e
         $stderr.puts [
