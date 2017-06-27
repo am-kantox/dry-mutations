@@ -25,18 +25,20 @@ module Dry
         end
         # rubocop:enable Style/MultilineIfModifier
 
-        def chain **params
+        def chain **params, &λ
           return enum_for(:chain) unless block_given? # FIXME: Needed? Works? Remove?
 
           # rubocop:disable Style/VariableNumber
           λ = Proc.new
 
-          @transaction = ::Dry.Transaction(
-            container: ::Dry::Mutations::Transactions::Container,
-            step_adapters: StepAdapters
-          ) do
-            instance_eval(&λ)
-          end.tap do |transaction|
+          @transaction = Class.new do
+            include ::Dry::Transaction(
+              container: ::Dry::Mutations::Transactions::Container,
+              step_adapters: StepAdapters
+            )
+            # class_eval(&λ) if λ
+            module_eval(&λ) if λ
+          end.new.tap do |transaction|
             singleton_class.send :define_method, :call do |*input|
               transaction.(Utils.RawInputs(*input))
             end

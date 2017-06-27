@@ -339,6 +339,9 @@ Bug reports are very welcome!
 
 ## Changelog
 
+#### 1.1.0
+More handy `chain`s, better `dry-rb` integration, improvements.
+
 #### 0.99.1
 Support for direct input parameters invocation. 100%-compatibility with `mutations`:
 
@@ -347,9 +350,6 @@ def validate # input ≡ { date: nil }
   date < Date.now
 end
 ```
-
-#### 1.1.0
-More handy `chain`s, better `dry-rb` integration, improvements.
 
 #### 0.99.0
 Support for `default:` guard. 99%-compatibility with `mutations`

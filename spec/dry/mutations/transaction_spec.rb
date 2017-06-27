@@ -110,9 +110,7 @@ describe Dry::Mutations::Transactions do
         chain do
           tranquilo c1
           chain child
-          chain do
-            validate c3
-          end
+          chain c3
         end
       end
     end
