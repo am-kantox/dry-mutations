@@ -21,8 +21,8 @@ describe Dry::Mutations::Extensions::Command do
       def execute
         {
           inputs: inputs,
-          name: "#{inputs.name}ny",
-          amount: inputs.amount / 2
+          name: "#{inputs[:name]}ny",
+          amount: inputs[:amount] / 2
         }
       end
     end

@@ -20,7 +20,7 @@ describe Dry::Mutations::Extensions::Command do
       end)
 
       def validate
-        add_error :"properties.name", :custom, 'Must be cool' unless properties.name == 'Aleksei'
+        add_error :"properties.name", :custom, 'Must be cool' unless properties[:name] == 'Aleksei'
       end
     end
   end

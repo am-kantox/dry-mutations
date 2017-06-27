@@ -133,7 +133,7 @@ module Dry
           errors = errors.values if errors.is_a?(Hash)
           errors.each_with_object(flat) do |error, acc|
             case error
-            when ::Mutations::ErrorHash, ::Mutations::ErrorArray then yield_messages(acc, error)
+            when Enumerable then yield_messages(acc, error)
             when ::Dry::Mutations::Errors::ErrorAtom then acc << error.dry_message
             when ::Mutations::ErrorAtom then acc << error.message
             end
