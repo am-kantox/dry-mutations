@@ -9,8 +9,7 @@ module Dry
             @schema ||= patched_schema(schema) \
                     || derived_schema(input_processor: input_processor, type: type, **options, &block)
             return @schema unless block_given?
-
-            @schema = Validation.Schema(@schema, **@schema.options, &Proc.new)
+            @schema = Validation.Schema(@schema, **@schema.options, &block)
           when 2 # explicit dry schema given
             name = args.first
             current = @current # closure scope
@@ -39,7 +38,7 @@ module Dry
           end
         end
 
-        def patched_schema(schema)
+        def patched_schema(schema = nil)
           return nil unless schema.is_a?(::Dry::Validation::Schema)
           schema.tap do |s|
             s.config.instance_eval(&::Dry::Mutations::Schema::CONFIGURATOR)
