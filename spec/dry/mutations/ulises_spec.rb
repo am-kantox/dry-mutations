@@ -138,15 +138,13 @@ describe Dry::Mutations::Extensions::Command do
     it 'rejects wrong inputs' do
       expect(bad_output).to be_is_a(::Mutations::Command)
       expect(bad_output.run).not_to be_success
-      expect(bad_output.messages.size).to eq(6)
-      match_array(
+      expect(bad_output.messages.size).to eq(4)
+      expect(bad_output.messages).to match_array(
         [
-          'must be a model (instance of Profile)',
-          'must be a model (instance of User)',
-          'must be one of: spot, forward_days, fixed_date',
-          'must be an integer',
-          'must be a date',
-          'must be a date'
+          "company: must be a model (instance of Profile)",
+          "expiration_date_set: date: must be Date",
+          "maturity_set: maturity_choice: must be one of: spot, forward_days, fixed_date: maturity_days_set: days: must be Integer: maturity_date_set: date: must be Date",
+          "user: must be a model (instance of User)"
         ]
       )
     end

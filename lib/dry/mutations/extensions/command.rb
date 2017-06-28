@@ -8,12 +8,20 @@ module Dry
           fail ArgumentError, "Can not prepend #{self.class} to #{base.class}: base class must be a ::Mutations::Command descendant." unless base < ::Mutations::Command
           base.extend(DSL::Module) unless base.ancestors.include?(DSL::Module)
           base.extend(Module.new do
+            def exceptions_as_errors(value)
+              @exceptions_as_errors = value
+            end
+
+            def finalizers(outcome: nil, errors: nil)
+              @finalizers = { outcome: outcome, errors: errors }
+            end
+
             def call(*args)
-              new(*args).call
+              new(*args).()
             end
 
             def to_proc
-              ->(*args) { new(*args).call }
+              ->(*args) { new(*args) }
             end
 
             if base.name && !::Kernel.methods.include?(base_name = base.name.split('::').last.to_sym)
@@ -27,7 +35,7 @@ module Dry
 
           base.singleton_class.prepend(Module.new do
             def respond_to_missing?(method_name, include_private = false)
-              %i|call to_proc|.include?(method_name) || super
+              %i|exceptions_as_errors finalizers call to_proc|.include?(method_name) || super
             end
           end)
         end
@@ -56,6 +64,8 @@ module Dry
 
           # Run a custom validation method if supplied:
           validate unless has_errors?
+
+          finalizer(:errors, @errors) if has_errors?
         end
 
         ########################################################################
@@ -96,10 +106,11 @@ module Dry
         end
 
         def execute
-          super
+          super.tap { |outcome| finalizer(:outcome, outcome) }
         rescue => e
-          add_error(:♻, :runtime_exception, e.message)
-          raise e
+          add_error(:♻, :runtime_exception, "#{e.class.name}: #{e.message}")
+          finalizer(:errors, @errors)
+          raise e unless exceptions_as_errors?
         end
 
         def add_error(key, kind, message = nil, dry_message = nil)
@@ -123,20 +134,21 @@ module Dry
         end
 
         def messages
-          @messages ||= yield_messages.uniq
+          @messages ||= yield_messages
         end
 
         private
 
-        def yield_messages(flat = [], errors = @errors)
+        def yield_messages(flat = {}, errors = @errors)
           return flat unless errors
-          errors = errors.values if errors.is_a?(Hash)
-          errors.each_with_object(flat) do |error, acc|
-            case error
-            when Enumerable then yield_messages(acc, error)
-            when ::Dry::Mutations::Errors::ErrorAtom then acc << error.dry_message
-            when ::Mutations::ErrorAtom then acc << error.message
-            end
+
+          errors.each_with_object([]) do |(key, msg), acc|
+            acc << [key, case msg
+                         when Hash then yield_messages({}, msg)
+                         when Array then msg.map(&:dry_message).join(', ')
+                         when ::Dry::Mutations::Errors::ErrorAtom then msg.dry_message
+                         when ::Mutations::ErrorAtom then msg.message
+                         end].join(': ')
           end
         end
 
@@ -180,6 +192,21 @@ module Dry
               [k, v.options[:args].first]
             end.compact.to_h
           )
+        end
+
+        def exceptions_as_errors?
+          eae = self.class.instance_variable_get :@exceptions_as_errors
+          eae.respond_to?(:call) ? eae.() : eae
+        end
+
+        def finalizer(type, outcome)
+          fin = self.class.instance_variable_get :@finalizers
+          # rubocop:disable Lint/AssignmentInCondition
+          return nil unless fin.is_a?(Hash) && finalizer = fin[type]
+          # rubocop:enable Lint/AssignmentInCondition
+          finalizer = method(finalizer) if finalizer.is_a?(Symbol)
+          return nil unless finalizer.respond_to?(:call)
+          finalizer.(outcome)
         end
 
         def fix_accessors!

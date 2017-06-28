@@ -247,7 +247,7 @@ describe Dry::Mutations::Extensions::Command do
     it 'does not require optionals in input' do
       expect(output.run).not_to be_success
       expect(output.run.errors.size).to eq 1
-      expect(output.messages.map(&:text)).to match_array(["must be Integer"])
+      expect(output.messages).to match_array(["amount: must be Integer"])
     end
   end
 
@@ -256,11 +256,12 @@ describe Dry::Mutations::Extensions::Command do
     it 'fails on incorrect input' do
       expect(output.run).not_to be_success
       expect(output.run.errors.size).to eq 3
-      expect(output.messages.map(&:text)).to match_array(
-        ['size cannot be greater than 5',
-         'must be Integer',
-         'must be greater than or equal to 10',
-         'must be less than or equal to 100']
+      expect(output.messages).to match_array(
+        [
+          "age: must be greater than or equal to 10, must be less than or equal to 100",
+          "amount: must be Integer",
+          "name: size cannot be greater than 5"
+        ]
       )
       expect { output.run! }.to raise_error(::Mutations::ValidationException)
     end
@@ -319,6 +320,56 @@ describe Dry::Mutations::Extensions::Command do
     end
   end
 
+  context 'suppressing raise command' do
+    let(:command) do
+      Class.new(::Mutations::Command) do
+        prepend ::Dry::Mutations::Extensions::Command
+        exceptions_as_errors true
+
+        required do
+          integer :amount
+        end
+        def execute
+          amount / 0
+        end
+      end
+    end
+    it 'handles exceptions' do
+      expect { command.run(amount: 5) }.not_to raise_exception
+      expect { command.run(amount: 0) }.not_to raise_exception
+      expect(command.run(amount: 0).success?).to be false
+      expect(command.run(amount: 0).errors['♻'].message).to eq("ZeroDivisionError: divided by 0")
+    end
+  end
+
+  context 'errors finalizer' do
+    let(:command) do
+      Class.new(::Mutations::Command) do
+        prepend ::Dry::Mutations::Extensions::Command
+        exceptions_as_errors true
+        finalizers errors: :greeting,
+                   outcome: ->(outcome) { outcome[:amount] -= 10 }
+
+        required { integer :amount }
+        def execute
+          { amount: 100 / amount }
+        end
+
+        def greeting(errors)
+          errors['♻'] = "¡Reset!"
+        end
+      end
+    end
+    it 'calls finalizer' do
+      expect(command.run(amount: 5).success?).to be true
+      expect(command.run(amount: 5).result[:amount]).to eq 10
+      expect(command.run(notamount: "HI").success?).to be false
+      expect(command.run(notamount: "HI").errors['♻']).to eq("¡Reset!")
+      expect(command.run(amount: 0).success?).to be false
+      expect(command.run(amount: 0).errors['♻']).to eq("¡Reset!")
+    end
+  end
+
   context 'call interface: success' do
     let(:input) { default_input }
     it 'processes the input properly' do
@@ -355,7 +406,7 @@ describe Dry::Mutations::Extensions::Command do
     let(:input) { [default_input] * 2 }
     it 'processes the input properly' do
       expect(input.map(&simple_command).size).to eq(2)
-      expect(input.map(&simple_command).map(&:value).first).to eq(::Dry::Mutations::Utils.Hash(default_input))
+      expect(input.map(&simple_command).map(&:call).map(&:value).first).to eq(::Dry::Mutations::Utils.Hash(default_input))
     end
   end
 
