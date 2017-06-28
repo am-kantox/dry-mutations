@@ -17,7 +17,7 @@ module Dry
         require 'hashie/dash'
         require 'hashie/extensions/dash/indifferent_access'
         require 'hashie/extensions/indifferent_access'
-        ::Mutations::ErrorHash.include Hashie::Extensions::IndifferentAccess
+        ::Mutations::ErrorHash.include Hashie::Extensions::Dash::IndifferentAccess
         true
       rescue LoadError => e
         $stderr.puts [

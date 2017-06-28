@@ -1,13 +1,13 @@
 module Dry
   module Mutations
-    class Form < ::Dry::Validation::Form
-      @@discarded = []
+    class Form < ::Dry::Validation::Form # :nodoc:
+      @discarded = []
 
       configure(&::Dry::Validation::Schema::CONFIGURATOR)
       # predicates(::Dry::Mutations::Predicates)
 
       def discarded
-        @@discarded
+        self.class.instance_variable_get :@discarded
       end
 
       def discarded?

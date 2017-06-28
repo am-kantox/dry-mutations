@@ -24,13 +24,14 @@ module Dry
             # key = msg.path.join('.')
             last = msg.path.pop
             tail = msg.path.inject(memo) { |acc, curr| acc[curr.to_s] ||= ::Mutations::ErrorHash.new }
-            tail[last.to_s] = case tail[last.to_s]
-                              when ErrorAtom then ::Mutations::ErrorArray.new << tail[last.to_s]
-                              when NilClass then ::Mutations::ErrorArray.new
-                              when ::Mutations::ErrorArray then tail[last.to_s]
-                              end
-
-            tail[last.to_s] << new(last, msg.predicate, msg, message: msg.text, index: idx)
+            tail[last] = case tail[last]
+                         when ErrorAtom then ::Mutations::ErrorArray.new << tail[last.to_s]
+                         when NilClass then ::Mutations::ErrorArray.new
+                         when ::Mutations::ErrorArray then tail[last.to_s]
+                         end
+            key = msg.respond_to?(:predicate) ? msg.predicate : last
+            text = msg.respond_to?(:text) ? msg.text : msg.to_s
+            tail[last.to_s] << new(last, key, msg, message: text, index: idx)
             # memo[key] = new(key, msg.predicate, msg, message: msg.text, index: idx)
           end
         end
