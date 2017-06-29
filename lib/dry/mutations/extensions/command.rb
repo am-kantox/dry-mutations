@@ -20,7 +20,7 @@ module Dry
               callable = to_proc.(*args)
               outcome = callable.()
             ensure
-              ::Dry::Mutations::Utils.extend_outcome outcome, callable.host
+              ::Dry::Mutations::Utils.extend_outcome outcome, callable.host if callable.respond_to?(:host)
             end
 
             def to_proc
