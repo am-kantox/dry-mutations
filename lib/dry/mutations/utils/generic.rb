@@ -56,6 +56,7 @@ module Dry
 
       ITSELF = ->(h, k) { h[k] = k }
 
+      # rubocop:disable Style/MultilineIfModifier
       def self.extend_outcome(whatever, host)
         whatever.tap do |outcome|
           outcome.instance_variable_set(:@host, host)
@@ -64,8 +65,11 @@ module Dry
               @host
             end
           end)
-        end
+        end unless whatever.frozen?
+      rescue
+        whatever
       end
+      # rubocop:enable Style/MultilineIfModifier
     end
   end
 end
