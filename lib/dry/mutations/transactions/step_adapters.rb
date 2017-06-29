@@ -15,7 +15,7 @@ module Dry
               def call(step, *args, input)
                 outcome = super
               ensure
-                ::Dry::Mutations::Utils.extend_outcome outcome.value, "#{step.step_name}::#{step.operation_name}"
+                ::Dry::Mutations::Utils.extend_outcome outcome.value, "#{step.step_name}::#{step.operation_name}" if outcome
               end
             end)
           end
