@@ -10,6 +10,14 @@ module Dry
             name = Utils.Snake(sub, short: true, symbolize: true)
             StepAdapters.register name, sub.new
             adapters[name] = sub
+
+            sub.prepend(Module.new do
+              def call(step, *args, input)
+                outcome = super
+              ensure
+                ::Dry::Mutations::Utils.extend_outcome outcome.value, "#{step.step_name}::#{step.operation_name}"
+              end
+            end)
           end
 
           def self.adapters

@@ -17,7 +17,10 @@ module Dry
             end
 
             def call(*args)
-              new(*args).()
+              callable = to_proc.(*args)
+              outcome = callable.()
+            ensure
+              ::Dry::Mutations::Utils.extend_outcome outcome, callable.host
             end
 
             def to_proc
@@ -38,6 +41,10 @@ module Dry
               %i|exceptions_as_errors finalizers call to_proc|.include?(method_name) || super
             end
           end)
+
+          define_method :host do
+            base.to_s
+          end
         end
 
         attr_reader :validation
@@ -71,6 +78,12 @@ module Dry
         ########################################################################
         ### Functional helpers
         ########################################################################
+
+        def run
+          outcome = super
+        ensure
+          ::Dry::Mutations::Utils.extend_outcome outcome, host
+        end
 
         def call
           run.either

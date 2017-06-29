@@ -91,11 +91,17 @@ module Dry
         case input
         when ::Mutations::Outcome then input
         when ::Dry::Monads::Either::Left
-          ::Mutations::Outcome.new(false, nil, input.value, nil)
+          ::Mutations::Outcome.new(false, nil, input.value, nil).tap do |outcome|
+            ::Dry::Mutations::Utils.extend_outcome outcome, input.value.host
+          end
         when ::Dry::Monads::Either::Right
-          ::Mutations::Outcome.new(true, input.value, nil, nil)
+          ::Mutations::Outcome.new(true, input.value, nil, nil).tap do |outcome|
+            ::Dry::Mutations::Utils.extend_outcome outcome, input.value.host
+          end
         when ->(inp) { inp.respond_to?(:success?) }
-          ::Mutations::Outcome.new(input.success?, input.success? && input, input.success? || input, nil)
+          ::Mutations::Outcome.new(input.success?, input.success? && input, input.success? || input, nil).tap do |outcome|
+            ::Dry::Mutations::Utils.extend_outcome outcome, input.host if input.respond_to?(:host)
+          end
         else fail TypeError.new("Wrong input passed to Outcome(): [#{input.inspect}]")
         end
       end

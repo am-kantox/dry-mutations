@@ -142,5 +142,27 @@ describe Dry::Mutations::Transactions do
       expect(result.(input)).to be_left
     end
   end
+
+  context 'embedded host' do
+    let(:result) do
+      c2 = command2
+      c3 = command3
+
+      Class.new do
+        extend ::Dry::Mutations::Transactions::DSL
+
+        # We need inplace blocks to create chains.
+        #   It makes sense mostly for `tee` and `try`
+        chain do
+          chain c2
+          validate c3
+        end
+      end
+    end
+    it 'processes the input properly' do
+      expect(command2.run(fail: true).host).to match(/\A#<Class:/)
+      expect(result.run(fail: true).host).to match(/\A#<Class:/)
+    end
+  end
 end
 # rubocop:enable Metrics/BlockLength

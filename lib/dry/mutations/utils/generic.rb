@@ -55,6 +55,17 @@ module Dry
       end
 
       ITSELF = ->(h, k) { h[k] = k }
+
+      def self.extend_outcome(whatever, host)
+        whatever.tap do |outcome|
+          outcome.instance_variable_set(:@host, host)
+          outcome.extend(Module.new do
+            def host
+              @host
+            end
+          end)
+        end
+      end
     end
   end
 end
