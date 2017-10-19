@@ -44,5 +44,6 @@ module Dry
 
     DSL::Types::Nested.extend DSL::Module
     ::Mutations::Command.prepend Extensions::Command if Utils.Truthy?(ENV['GLOBAL_DRY_MUTATIONS'])
+    ::Mutations::ErrorHash.prepend Extensions::ErrorHash
   end
 end
