@@ -26,18 +26,25 @@ Gem::Specification.new do |spec|
   spec.executables   = []
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'bundler', '~> 1.10'
-  spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_development_dependency 'rspec', '~> 3'
-  spec.add_development_dependency 'pry', '~> 0.10'
+  spec.add_development_dependency 'bundler'
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'pry'
   spec.add_development_dependency 'awesome_print'
   spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'rspec', '~> 3'
   spec.add_development_dependency 'activerecord', '< 5', '>= 3.2'  # prevent mutations to require activerecord 5
 
   spec.add_dependency 'activesupport', '< 5', '>= 3.2' # prevent mutations to require activesupport 5
   spec.add_dependency 'mutations', '~> 0.8'
   spec.add_dependency 'hashie', '~> 3'
 
-  spec.add_dependency 'dry-validation', '~> 0.10'
+  spec.add_dependency 'dry-configurable', '~> 0.7', '< 0.8'
+  spec.add_dependency 'dry-container', '~> 0.6', '< 0.7'
+  spec.add_dependency 'dry-logic', '~> 0.4', '< 0.5'
+  spec.add_dependency 'dry-matcher', '~> 0.6', '< 0.7'
+  spec.add_dependency 'dry-monads', '= 0.3.1'
+  spec.add_dependency 'dry-types', '~> 0.9', '< 0.10'
+
+  spec.add_dependency 'dry-validation', '~> 0.10', '< 0.11'
   spec.add_dependency 'dry-transaction', '~> 0.9', '< 0.10'
 end
